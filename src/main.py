@@ -32,10 +32,13 @@ class Heading:
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
+levels = [[(270, 450, 100, 20), (440, 390, 100, 20), (590, 290), (950, 435)]]
+levels_completed = -1
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1250, 640))
-    level1 = [(320, 460, 100, 20), (200, 400, 50, 50)]
+    level = levels[levels_completed + 1]
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     while True:
         screen.fill((255, 255, 255))
@@ -52,6 +55,6 @@ def main():
                 return
             elif event.type == MOUSEBUTTONDOWN:
                 if button.is_clicked(event.pos):
-                    game.game(screen, level1)
+                    game.game(screen, level)
 
 main()
