@@ -83,7 +83,7 @@ def main():
                 elif event.type == MOUSEBUTTONDOWN:
                     if level_button.is_clicked(event.pos):
                         level = __import__(f"level{level_number}")
-                        level.play(screen)
+                        level_completed = level.play(screen)
                     elif back_button.is_clicked(event.pos):
                         on_levels = False
 

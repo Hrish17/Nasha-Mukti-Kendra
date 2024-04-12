@@ -74,8 +74,6 @@ def play(screen):
     door = Door(door1[0], door1[1])
 
     quit_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
-    gameOn = True
-
     key_collected = False
 
     player.rect.x = 100
@@ -93,13 +91,13 @@ def play(screen):
     gravity = og_gravity
     gravity_accumulator = 0
 
-    while gameOn:
+    while True:
         for event in pygame.event.get():
             if event.type == QUIT:
-                gameOn = False
+                return False
             elif event.type == MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
-                    gameOn = False
+                    return False
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT or event.key == K_a:
                     moving_left = True
@@ -181,7 +179,9 @@ def play(screen):
 
         if player.rect.colliderect(key.rect):
             key_collected = True
-
+        
+        if player.rect.colliderect(door.rect) and key_collected:
+            return True
 
         screen.fill((170, 170, 170))
         if not key_collected:
