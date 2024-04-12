@@ -18,16 +18,22 @@ class Block(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        self.image = pygame.Surface((30, 30))
-        self.image.fill((255, 255, 0))
+        original_image = pygame.image.load("assets/key.webp").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (40, 40))
+        rotated_image = pygame.transform.rotate(scaled_image, 90)
+        self.image = rotated_image
         self.rect = self.image.get_rect(topleft=(x, y))
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        self.surf = pygame.Surface((60, 90))
-        self.surf.fill((0, 255, 0))
+        self.width = 60
+        self.height = 90
+        self.surf = pygame.Surface((self.width, self.height))
+        self.surf.fill((255, 255, 255))
+        pygame.draw.rect(self.surf, (0, 0, 0), (0, 0, self.width, self.height), 4)
         self.rect = self.surf.get_rect(topleft=(x, y))
+
 
 def create_level(level_data):
     blocks = pygame.sprite.Group()
