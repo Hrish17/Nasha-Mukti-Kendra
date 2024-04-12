@@ -35,11 +35,12 @@ class Heading:
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1250, 640))
+    level1 = [(320, 460, 100, 20), (200, 400, 50, 50)]
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     while True:
         screen.fill((255, 255, 255))
         font_heading = pygame.font.Font(None, 48)
-        heading = Heading(625, 200, 'FRIENDS', font_heading, (0, 0, 0))
+        heading = Heading(625, 200, 'QUBI KING', font_heading, (0, 0, 0))
         heading.draw(screen)
         font_button = pygame.font.Font(None, 36)
         button = Button(525, 500, 200, 50, (0, 0, 0), 'Play', font_button, (255, 255, 255))
@@ -51,6 +52,6 @@ def main():
                 return
             elif event.type == MOUSEBUTTONDOWN:
                 if button.is_clicked(event.pos):
-                    game.game(screen)
+                    game.game(screen, level1)
 
 main()

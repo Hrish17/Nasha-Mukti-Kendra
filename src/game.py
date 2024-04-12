@@ -134,8 +134,3 @@ def game(screen, level):
         screen.blit(square1.surf, square1.rect)
         blocks.draw(screen)
         pygame.display.flip()
-
-pygame.init()
-screen = pygame.display.set_mode((1250, 640))
-level1 = [(320, 460, 100, 20), (200, 400, 50, 50)]  # Example level data with two blocks
-game(screen, level1)
