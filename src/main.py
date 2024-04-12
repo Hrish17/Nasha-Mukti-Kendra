@@ -31,10 +31,9 @@ class Heading:
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
-levels_completed = 0
-total_levels = 7
-
 def main():
+    levels_completed = 0
+    total_levels = 7
     pygame.init()
     info = pygame.display.Info()
     screen_width = info.current_w
@@ -72,17 +71,36 @@ def main():
             levels_heading = Heading(625, 100, 'LEVELS', font_heading, (0, 0, 0))
             levels_heading.draw(screen)
             font_button = pygame.font.Font(None, 36)
-            level_button = Button(100, 200, 50, 50, (0, 0, 0), '1', font_button, (255, 255, 255))
-            level_button.draw(screen)
+            back_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Back', font_button, (255, 255, 255))
+            back_button.draw(screen)
+            level_buttons = []
+            for i in range(1, (total_levels // 6) + 2):
+                for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
+                    level_button = Button(100 + 150 * j, 100 + 100 * i, 50, 50, (0, 0, 0), f'{6*(i-1) + j}', font_button, (255, 255, 255))
+                    level_buttons.append(level_button)
+                    if 5*(i-1) + j > levels_completed + 1:
+                        level_button.color = (150, 150, 150)
+                    level_button.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     return
                 elif event.type == MOUSEBUTTONDOWN:
-                    if level_button.is_clicked(event.pos):
-                        level = __import__(f"level{level_number}")
-                        level.play(screen)
+                    if back_button.is_clicked(event.pos):
+                        on_levels = False
+                    else:
+                        for i in range(1, total_levels + 1):
+                            if i > levels_completed + 1:
+                                continue
+                            else:
+                                level_button = level_buttons[i - 1]
+                                if level_button.is_clicked(event.pos):
+                                    level = __import__(f"level{level_number}")
+                                    level_completed = level.play(screen)
+                                    if level_completed:
+                                        levels_completed += 1
+                                        level_number += 1
 
 
 
