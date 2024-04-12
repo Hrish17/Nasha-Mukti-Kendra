@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-import game
 
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
@@ -32,13 +31,12 @@ class Heading:
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
-levels = [[(270, 450, 100, 20), (440, 390, 100, 20), (590, 290), (950, 435)]]
-levels_completed = -1
+levels_completed = 0
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1250, 640))
-    level = levels[levels_completed + 1]
+    level_number = levels_completed + 1
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     while True:
         screen.fill((255, 255, 255))
@@ -55,6 +53,7 @@ def main():
                 return
             elif event.type == MOUSEBUTTONDOWN:
                 if button.is_clicked(event.pos):
-                    game.game(screen, level)
+                    level = __import__(f"level{level_number}")
+                    level.play(screen)
 
 main()
