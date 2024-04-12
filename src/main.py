@@ -32,6 +32,7 @@ class Heading:
         screen.blit(font_surface, font_rect)
 
 levels_completed = 0
+total_levels = 7
 
 def main():
     pygame.init()
@@ -73,8 +74,6 @@ def main():
             font_button = pygame.font.Font(None, 36)
             level_button = Button(100, 200, 50, 50, (0, 0, 0), '1', font_button, (255, 255, 255))
             level_button.draw(screen)
-            back_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Back', font_button, (255, 255, 255))
-            back_button.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -83,8 +82,8 @@ def main():
                 elif event.type == MOUSEBUTTONDOWN:
                     if level_button.is_clicked(event.pos):
                         level = __import__(f"level{level_number}")
-                        level_completed = level.play(screen)
-                    elif back_button.is_clicked(event.pos):
-                        on_levels = False
+                        level.play(screen)
+
+
 
 main()
