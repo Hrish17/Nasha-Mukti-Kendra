@@ -50,21 +50,21 @@ def game(screen, level):
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
                     gameOn = False
-                elif event.key == K_LEFT:
+                elif event.key == K_LEFT or event.key == K_a:
                     moving_left = True
                     moving_right = False
-                elif event.key == K_RIGHT:
+                elif event.key == K_RIGHT or event.key == K_d:
                     moving_right = True
                     moving_left = False
-                elif event.key == K_UP:
+                elif event.key == K_UP or event.key == K_SPACE or event.key == K_w:
                     if not jumping and on_ground:
                         on_ground = False
                         jumping = True
 
             elif event.type == KEYUP:
-                if event.key == K_LEFT:
+                if event.key == K_LEFT or event.key == K_a:
                     moving_left = False
-                elif event.key == K_RIGHT:
+                elif event.key == K_RIGHT or event.key == K_d:
                     moving_right = False
 
             elif event.type == QUIT:
