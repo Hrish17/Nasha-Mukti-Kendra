@@ -95,13 +95,13 @@ def play(screen):
 
     while gameOn:
         for event in pygame.event.get():
-            if event.type == MOUSEBUTTONDOWN:
+            if event.type == QUIT:
+                gameOn = False
+            elif event.type == MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
                     gameOn = False
             elif event.type == KEYDOWN:
-                if event.key == K_BACKSPACE:
-                    gameOn = False
-                elif event.key == K_LEFT or event.key == K_a:
+                if event.key == K_LEFT or event.key == K_a:
                     moving_left = True
                     moving_right = False
                 elif event.key == K_RIGHT or event.key == K_d:
@@ -118,8 +118,6 @@ def play(screen):
                 elif event.key == K_RIGHT or event.key == K_d:
                     moving_right = False
 
-            elif event.type == QUIT:
-                gameOn = False
 
         if moving_right:
             move_accumulator += move_speed
