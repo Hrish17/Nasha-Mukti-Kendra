@@ -34,6 +34,24 @@ class Door(pygame.sprite.Sprite):
         pygame.draw.rect(self.surf, (0, 0, 0), (0, 0, self.width, self.height), 4)
         self.rect = self.surf.get_rect(topleft=(x, y))
 
+class Button:
+    def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+        self.text = text
+        self.font = font
+        self.text_color = text_color
+        self.action = action
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+        font_surface = self.font.render(self.text, True, self.text_color)
+        font_rect = font_surface.get_rect(center=self.rect.center)
+        screen.blit(font_surface, font_rect)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+
 
 def create_level(level_data):
     blocks = pygame.sprite.Group()
@@ -54,6 +72,8 @@ def play(screen):
     blocks.add(ground)
     key = Key(key1[0], key1[1])
     door = Door(door1[0], door1[1])
+
+    quit_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
     gameOn = True
 
     key_collected = False
@@ -75,7 +95,10 @@ def play(screen):
 
     while gameOn:
         for event in pygame.event.get():
-            if event.type == KEYDOWN:
+            if event.type == MOUSEBUTTONDOWN:
+                if quit_button.is_clicked(event.pos):
+                    gameOn = False
+            elif event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
                     gameOn = False
                 elif event.key == K_LEFT or event.key == K_a:
@@ -168,4 +191,5 @@ def play(screen):
         screen.blit(door.surf, door.rect)
         blocks.draw(screen)
         screen.blit(player.surf, player.rect)
+        quit_button.draw(screen)
         pygame.display.flip()

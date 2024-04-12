@@ -35,25 +35,34 @@ levels_completed = 0
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((1250, 640))
+    info = pygame.display.Info()
+    screen_width = info.current_w
+    screen_height = info.current_h
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption("Qubi King")
     level_number = levels_completed + 1
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     while True:
         screen.fill((255, 255, 255))
-        font_heading = pygame.font.Font(None, 48)
+        font_heading = pygame.font.Font(None, 60)
         heading = Heading(625, 200, 'QUBI KING', font_heading, (0, 0, 0))
         heading.draw(screen)
-        font_button = pygame.font.Font(None, 36)
-        button = Button(525, 500, 200, 50, (0, 0, 0), 'Play', font_button, (255, 255, 255))
-        button.draw(screen)
+        button_font = pygame.font.Font(None, 36)
+        play_button = Button(525, 500, 200, 50, (0, 0, 0), 'Play', button_font, (255, 255, 255))
+        play_button.draw(screen)
+        quit_button = Button(550, 600, 150, 50, (0, 0, 0), 'Quit', button_font, (255, 255, 255))
+        quit_button.draw(screen)
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 return
             elif event.type == MOUSEBUTTONDOWN:
-                if button.is_clicked(event.pos):
+                if play_button.is_clicked(event.pos):
                     level = __import__(f"level{level_number}")
                     level.play(screen)
+                elif quit_button.is_clicked(event.pos):
+                    pygame.quit()
+                    return
 
 main()
