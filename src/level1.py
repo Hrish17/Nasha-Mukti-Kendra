@@ -93,27 +93,27 @@ def play(screen):
 
     while True:
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 return False
-            elif event.type == MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
                     return False
-            elif event.type == KEYDOWN:
-                if event.key == K_LEFT or event.key == K_a:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     moving_left = True
                     moving_right = False
-                elif event.key == K_RIGHT or event.key == K_d:
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     moving_right = True
                     moving_left = False
-                elif event.key == K_UP or event.key == K_SPACE or event.key == K_w:
+                elif event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
                     if not jumping and on_ground:
                         on_ground = False
                         jumping = True
 
-            elif event.type == KEYUP:
-                if event.key == K_LEFT or event.key == K_a:
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     moving_left = False
-                elif event.key == K_RIGHT or event.key == K_d:
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     moving_right = False
 
 
