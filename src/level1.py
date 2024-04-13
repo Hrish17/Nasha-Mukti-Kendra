@@ -68,7 +68,7 @@ door1 = (950, 435)
 def play(screen):
     player = Player()
     blocks = create_level(blocks1)
-    ground = Block(0, 525, 1250, 115)
+    ground = Block(0, 525, screen.get_width(), screen.get_height() - 525)
     blocks.add(ground)
     key = Key(key1[0], key1[1])
     door = Door(door1[0], door1[1])
