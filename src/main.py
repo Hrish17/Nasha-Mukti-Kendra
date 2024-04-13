@@ -56,10 +56,10 @@ def main():
             quit_button.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     return
-                elif event.type == MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     if play_button.is_clicked(event.pos):
                         on_levels = True
                     elif quit_button.is_clicked(event.pos):
@@ -83,10 +83,10 @@ def main():
                     level_button.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
-                if event.type == QUIT:
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     return
-                elif event.type == MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     if back_button.is_clicked(event.pos):
                         on_levels = False
                     else:
