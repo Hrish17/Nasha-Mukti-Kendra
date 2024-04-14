@@ -22,7 +22,7 @@ class Block(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.webp").convert_alpha()
+        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
@@ -31,8 +31,15 @@ class Key(pygame.sprite.Sprite):
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door1.jpg").convert_alpha()
+        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+class Cigar(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Cigar, self).__init__()
+        original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (30, 30))
         self.rect = self.image.get_rect(topleft=(x, y))
 
 class Button:
@@ -61,31 +68,25 @@ def create_level(blocks, tilewidth, tileheight):
     return res
 
 def play(screen):
-    pygame.display.set_caption("Qubi King")
-    tmxdata = load_pygame("assets/maps/level1.tmx")
+    pygame.display.set_caption("Nasha Mukti Kendra")
+    tmxdata = load_pygame("assets/maps/level2.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
-    blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
-
-    blocks2 = pygame.sprite.Group()
-    for block in blocks:
-        blocks2.add(block)
-    for block in blocks1:
-        blocks2.add(block)
 
     player = Player()
-    player.rect.x = 400
+    player.rect.x = 370
     player.rect.y = 500
     player_alpha = 255
 
 
-    key = Key(1000, 250)
-    door = Door(1300, 425)
+    key = Key(1200, 350)
+    door = Door(1500, 455)
+
+    cigar = Cigar(1000, 385)
 
     moving_left = False
     moving_right = False
@@ -93,11 +94,12 @@ def play(screen):
 
     standing_block = None
 
-    move_speed = 0.25
+    og_move_speed = 0.3
+    move_speed = og_move_speed
     move_accumulator = 0
     on_ground = True
 
-    og_gravity = 0.45
+    og_gravity = 0.4
     gravity = og_gravity
     gravity_accumulator = 0
 
@@ -146,7 +148,7 @@ def play(screen):
                 screen_offset_x += int(move_accumulator)
                 move_accumulator %= 1
 
-        for block in blocks2:
+        for block in blocks:
             if player.rect.colliderect(block.rect):
                 if jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.top:
                     player.rect.top = block.rect.bottom
@@ -169,16 +171,21 @@ def play(screen):
                     gravity = og_gravity
 
         if jumping and not reached:
+            move_speed = og_move_speed + 0.1
             player.rect.y -= 0.51
-            gravity -= 0.005
+            gravity -= 0.0045
             if gravity < -0.4:
                 jumping = False
                 gravity = og_gravity
+                move_speed = og_move_speed
 
         gravity_accumulator += gravity
         if gravity_accumulator >= 1.1 and not reached:
             player.rect.y += int(gravity_accumulator)
             gravity_accumulator %= 1
+
+        if on_ground:
+            move_speed = og_move_speed
 
         if player.rect.y < screen.get_height() // 2:
             screen_offset_y = 0
@@ -190,24 +197,12 @@ def play(screen):
             key_collected = True
 
 
-        #Falling blocks
-        for block in blocks1:
-            if block.rect.x - player.rect.x < 30 and block.rect.y < 1000 and key_collected:
-                block.rect.y += 3
-
         screen.fill((0, 0, 0))
 
         for x, y, image in background_layer.tiles():
             screen.blit(image, (x * tmxdata.tilewidth + screen_offset_x, y * tmxdata.tileheight - screen_offset_y))
 
         for block in blocks:
-            block.rect.x += screen_offset_x
-            block.rect.y -= screen_offset_y
-            screen.blit(block.image, block.rect)
-            block.rect.x -= screen_offset_x
-            block.rect.y += screen_offset_y
-
-        for block in blocks1:
             block.rect.x += screen_offset_x
             block.rect.y -= screen_offset_y
             screen.blit(block.image, block.rect)
@@ -228,13 +223,21 @@ def play(screen):
                     player_alpha -= 1
                 else:
                     return True
-
+        
+        if player.rect.colliderect(cigar.rect):
+            return False
 
         door.rect.x += screen_offset_x
         door.rect.y -= screen_offset_y
         screen.blit(door.image, door.rect)
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
+
+        cigar.rect.x += screen_offset_x
+        cigar.rect.y -= screen_offset_y
+        screen.blit(cigar.image, cigar.rect)
+        cigar.rect.x -= screen_offset_x
+        cigar.rect.y += screen_offset_y
 
         player.rect.x += screen_offset_x
         player.rect.y -= screen_offset_y

@@ -22,7 +22,7 @@ class Block(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.webp").convert_alpha()
+        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
@@ -31,7 +31,7 @@ class Key(pygame.sprite.Sprite):
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door1.jpg").convert_alpha()
+        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(topleft=(x, y))
 
@@ -61,7 +61,7 @@ def create_level(blocks, tilewidth, tileheight):
     return res
 
 def play(screen):
-    pygame.display.set_caption("Qubi King")
+    pygame.display.set_caption("Nasha Mukti Kendra")
     tmxdata = load_pygame("assets/maps/level1.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
@@ -93,7 +93,8 @@ def play(screen):
 
     standing_block = None
 
-    move_speed = 0.25
+    og_move_speed = 0.3
+    move_speed = og_move_speed
     move_accumulator = 0
     on_ground = True
 
@@ -102,7 +103,7 @@ def play(screen):
     gravity_accumulator = 0
 
     screen_offset_x = 0
-    screen_offset_y = 0
+    screen_offset_y = 600
 
     key_collected = False
     reached = False
@@ -154,9 +155,9 @@ def play(screen):
                     on_ground = False
                     gravity = 0.5
                 elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-                    player.rect.x = block.rect.left - player.rect.width/2
+                    player.rect.right = block.rect.left
                 elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-                    player.rect.x = block.rect.right + player.rect.width/2
+                    player.rect.left = block.rect.right
                 else:
                     player.rect.y = block.rect.y - player.rect.height - 1
                     on_ground = True
@@ -169,16 +170,21 @@ def play(screen):
                     gravity = og_gravity
 
         if jumping and not reached:
+            move_speed = og_move_speed + 0.1
             player.rect.y -= 0.51
             gravity -= 0.005
             if gravity < -0.4:
                 jumping = False
                 gravity = og_gravity
+                move_speed = og_move_speed
 
         gravity_accumulator += gravity
         if gravity_accumulator >= 1.1 and not reached:
             player.rect.y += int(gravity_accumulator)
             gravity_accumulator %= 1
+
+        if on_ground:
+            move_speed = og_move_speed
 
         if player.rect.y < screen.get_height() // 2:
             screen_offset_y = 0
