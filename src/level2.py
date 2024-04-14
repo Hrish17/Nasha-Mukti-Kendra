@@ -80,7 +80,7 @@ def play(screen):
 
     player = Player()
     player.rect.x = 400
-    player.rect.y = 450
+    player.rect.y = 500
     player_alpha = 255
 
 
@@ -154,9 +154,9 @@ def play(screen):
                     on_ground = False
                     gravity = 0.5
                 elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-                    player.rect.x = block.rect.left - player.rect.width/2
+                    player.rect.right = block.rect.left
                 elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-                    player.rect.x = block.rect.right + player.rect.width/2
+                    player.rect.left = block.rect.right
                 else:
                     player.rect.y = block.rect.y - player.rect.height - 1
                     on_ground = True

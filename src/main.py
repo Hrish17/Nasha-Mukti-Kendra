@@ -36,8 +36,8 @@ def main():
     total_levels = 7
     pygame.init()
     info = pygame.display.Info()
-    screen_width = 1250
-    screen_height = 800
+    screen_width = 1080
+    screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Qubi King")
     level_number = levels_completed + 1
@@ -48,12 +48,12 @@ def main():
         if not on_levels:
             screen.fill((255, 255, 255))
             font_heading = pygame.font.Font(None, 60)
-            heading = Heading(625, 200, 'QUBI KING', font_heading, (0, 0, 0))
+            heading = Heading(screen_width/2, 250, 'QUBI KING', font_heading, (0, 0, 0))
             heading.draw(screen)
             button_font = pygame.font.Font(None, 36)
-            play_button = Button(525, 500, 200, 50, (0, 0, 0), 'Play', button_font, (255, 255, 255))
+            play_button = Button(screen_width/2 - 100, 400, 200, 50, (0, 0, 0), 'Play', button_font, (255, 255, 255))
             play_button.draw(screen)
-            quit_button = Button(550, 600, 150, 50, (0, 0, 0), 'Quit', button_font, (255, 255, 255))
+            quit_button = Button(screen_width/2 - 75, 500, 150, 50, (0, 0, 0), 'Quit', button_font, (255, 255, 255))
             quit_button.draw(screen)
             pygame.display.flip()
             for event in pygame.event.get():
@@ -69,15 +69,15 @@ def main():
         else:
             screen.fill((255, 255, 255))
             font_levels_heading = pygame.font.Font(None, 48)
-            levels_heading = Heading(625, 100, 'LEVELS', font_heading, (0, 0, 0))
+            levels_heading = Heading(screen_width/2, 100, 'LEVELS', font_heading, (0, 0, 0))
             levels_heading.draw(screen)
             font_button = pygame.font.Font(None, 36)
-            back_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Back', font_button, (255, 255, 255))
+            back_button = Button(screen_width - 130, 40, 100, 50, (0, 0, 0), 'Back', font_button, (255, 255, 255))
             back_button.draw(screen)
             level_buttons = []
             for i in range(1, (total_levels // 6) + 2):
                 for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
-                    level_button = Button(100 + 150 * j, 100 + 100 * i, 50, 50, (0, 0, 0), f'{6*(i-1) + j}', font_button, (255, 255, 255))
+                    level_button = Button(150 * j, 100 + 100 * i, 50, 50, (0, 0, 0), f'{6*(i-1) + j}', font_button, (255, 255, 255))
                     level_buttons.append(level_button)
                     if 5*(i-1) + j > levels_completed + 1:
                         level_button.color = (150, 150, 150)
