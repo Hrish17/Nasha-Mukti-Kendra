@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+pygame.init()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -14,6 +15,9 @@ class Block(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill((100, 100, 100))
         self.rect = self.image.get_rect(topleft=(x, y))
+    
+    def update(self):
+        self.rect.move
 
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -61,23 +65,32 @@ def create_level(level_data):
         blocks.add(block)
     return blocks
 
-blocks1 = [(270, 450, 100, 20), (440, 390, 100, 20)]
-key1 = (590, 290)
-door1 = (950, 435)
+blocks1 = [(2270, 1525, 100, 20), (2440, 1465, 100, 20), (2610, 1405, 100, 20), (2780, 1345, 100, 20), (2950, 1285, 100, 20)]
+key1 = (3100, 1220)
+door1 = (3600, 1510)
 
 def play(screen):
+    map_width = 10000
+    map_height = 2000
     player = Player()
     blocks = create_level(blocks1)
-    ground = Block(0, 525, screen.get_width(), screen.get_height() - 525)
+    ground = Block(0, 1600, map_width, map_height - 525)
     blocks.add(ground)
     key = Key(key1[0], key1[1])
     door = Door(door1[0], door1[1])
 
+    screen_width = screen.get_width()
+    screen_height = screen.get_height()
+
+    level_width = 500
+    level_height = 500
+    game_surface = pygame.Surface((level_width, level_height))
+
     quit_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
     key_collected = False
 
-    player.rect.x = 100
-    player.rect.y = 500
+    player.rect.x = 2100
+    player.rect.y = 1500
 
     moving_left = False
     moving_right = False
@@ -90,6 +103,9 @@ def play(screen):
     og_gravity = 0.5
     gravity = og_gravity
     gravity_accumulator = 0
+
+    screen_offset_x = -1700
+    screen_offset_y = 0
 
     while True:
         for event in pygame.event.get():
@@ -121,11 +137,13 @@ def play(screen):
             move_accumulator += move_speed
             if move_accumulator >= 1:
                 player.rect.x += int(move_accumulator)
+                screen_offset_x -= int(move_accumulator)
                 move_accumulator %= 1
         if moving_left:
             move_accumulator += move_speed
             if move_accumulator >= 1:
                 player.rect.x -= int(move_accumulator)
+                screen_offset_x += int(move_accumulator)
                 move_accumulator %= 1
 
         for block in blocks:
@@ -172,8 +190,8 @@ def play(screen):
         #     gravity = 0.5
         #     jumping = False
 
-        if(player.rect.left > screen.get_width() - 30):
-            player.rect.x = screen.get_width() - 30
+        if(player.rect.left > map_width - 30):
+            player.rect.x = map_width - 30
         elif(player.rect.x < 0):
             player.rect.x = 0
 
@@ -183,11 +201,47 @@ def play(screen):
         if player.rect.colliderect(door.rect) and key_collected:
             return True
 
+        # screen.fill((170, 170, 170))
+        # if not key_collected:
+        #     screen.blit(key.image, key.rect)
+        # screen.blit(door.surf, door.rect)
+        # blocks.draw(screen)
+        # screen.blit(player.surf, player.rect)
+        # quit_button.draw(screen)
+        # pygame.display.flip()
+        if player.rect.y < screen.get_height() // 2:
+            screen_offset_y = 0
+        elif player.rect.y > screen.get_height() // 2:
+            screen_offset_y = player.rect.y - screen.get_height() // 2
+        block_offset_x = -player.rect.x
+
         screen.fill((170, 170, 170))
+        
+        for block in blocks:
+            block.rect.x += screen_offset_x
+            block.rect.y -= screen_offset_y
+            screen.blit(block.image, block.rect)
+            block.rect.x -= screen_offset_x
+            block.rect.y += screen_offset_y
+
         if not key_collected:
+            key.rect.x += screen_offset_x
+            key.rect.y -= screen_offset_y
             screen.blit(key.image, key.rect)
+            key.rect.x -= screen_offset_x
+            key.rect.y += screen_offset_y
+
+        door.rect.x += screen_offset_x
+        door.rect.y -= screen_offset_y
         screen.blit(door.surf, door.rect)
-        blocks.draw(screen)
+        door.rect.x -= screen_offset_x
+        door.rect.y += screen_offset_y
+
+        player.rect.x += screen_offset_x
+        player.rect.y -= screen_offset_y
         screen.blit(player.surf, player.rect)
+        player.rect.x -= screen_offset_x
+        player.rect.y += screen_offset_y
+
         quit_button.draw(screen)
         pygame.display.flip()

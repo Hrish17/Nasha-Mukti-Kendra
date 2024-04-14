@@ -36,8 +36,8 @@ def main():
     total_levels = 7
     pygame.init()
     info = pygame.display.Info()
-    screen_width = info.current_w
-    screen_height = info.current_h
+    screen_width = 1250
+    screen_height = 800
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Qubi King")
     level_number = levels_completed + 1
@@ -96,9 +96,9 @@ def main():
                             else:
                                 level_button = level_buttons[i - 1]
                                 if level_button.is_clicked(event.pos):
-                                    level = __import__(f"level{level_number}")
+                                    level = __import__(f"level{i}")
                                     level_completed = level.play(screen)
-                                    if level_completed:
+                                    if level_completed and i == level_number:
                                         levels_completed += 1
                                         level_number += 1
 
