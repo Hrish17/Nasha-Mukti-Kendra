@@ -96,11 +96,11 @@ def play(screen):
     moving_right = False
     jumping = False
 
-    move_speed = 0.25
+    move_speed = 0.2
     move_accumulator = 0
     on_ground = True
 
-    og_gravity = 0.5
+    og_gravity = 0.4
     gravity = og_gravity
     gravity_accumulator = 0
 
@@ -174,7 +174,7 @@ def play(screen):
 
         if jumping:
             player.rect.y -= 0.51
-            gravity -= 0.005
+            gravity -= 0.0045
             if gravity < -0.5:
                 jumping = False
                 gravity = og_gravity

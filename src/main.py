@@ -43,6 +43,7 @@ def main():
     level_number = levels_completed + 1
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     on_levels = False
+    clock= pygame.time.Clock()
     while True:
         if not on_levels:
             screen.fill((255, 255, 255))
@@ -82,6 +83,7 @@ def main():
                         level_button.color = (150, 150, 150)
                     level_button.draw(screen)
             pygame.display.flip()
+            clock.tick(100)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
