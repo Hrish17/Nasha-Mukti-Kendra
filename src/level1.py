@@ -242,3 +242,4 @@ def play(screen):
 
         quit_button.draw(screen)
         pygame.display.flip()
+
