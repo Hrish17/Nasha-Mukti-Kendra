@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+
 pygame.init()
 
 class Player(pygame.sprite.Sprite):
@@ -22,7 +23,7 @@ class Block(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/key.webp").convert_alpha()
+        original_image = pygame.image.load("assets/images/key.webp").convert_alpha()
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
