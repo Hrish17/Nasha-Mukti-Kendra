@@ -9,6 +9,23 @@ class Player(pygame.sprite.Sprite):
         self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
 
+class Block(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, image):
+        super(Block, self).__init__()
+        self.surf = pygame.Surface((width, height))
+        self.surf.fill((0, 0, 0))
+        self.rect = self.surf.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.image = image
+
+def create_level(blocks, tilewidth, tileheight):
+    res = pygame.sprite.Group()
+    for x,y,image in blocks.tiles():
+        block = Block(x * tilewidth, y * tileheight, tilewidth, tileheight, image)
+        res.add(block)
+    return res
+
 pygame.init()
 
 # Set up the Pygame window
@@ -17,14 +34,11 @@ screen_height = 680
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Tiled Map Demo")
 
-# Load the Tiled map
 tmxdata = load_pygame("assets/maps/untitled.tmx")
-
-# Get the background layer
 background_layer = tmxdata.get_layer_by_name("Background")
-
-# Get the blocks layer
 blocks_layer = tmxdata.get_layer_by_name("Blocks")
+
+blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
 
 player = Player()
 
@@ -77,55 +91,53 @@ while running:
             # screen_offset_x += int(move_accumulator)
             move_accumulator %= 1
 
-    # for block in blocks:
-    #     if player.rect.colliderect(block.rect):
-    #         if jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.top:
-    #             player.rect.top = block.rect.bottom
-    #             jumping = False
-    #             on_ground = False
-    #             gravity = 0.5
-    #         elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-    #             player.rect.right = block.rect.left
-    #         elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
-    #             player.rect.left = block.rect.right
-    #         else:
-    #             player.rect.y = block.rect.y - player.rect.height
-    #             on_ground = True
-    #             jumping = False
-    #             gravity = 0
-    #     if player.rect.bottom == block.rect.top and on_ground:
-    #         if player.rect.left >= block.rect.right or player.rect.right <= block.rect.left:
-    #             on_ground = False
-    #             gravity = og_gravity
-
-    # Iterate through the blocks layer
-    for x, y, image in blocks_layer.tiles():
-        block_rect = pygame.Rect(x * tmxdata.tilewidth, y * tmxdata.tileheight, tmxdata.tilewidth, tmxdata.tileheight)
-        if player.rect.colliderect(block_rect):
-            # Collision detected, handle accordingly
-            if jumping and player.rect.top < block_rect.bottom and player.rect.bottom > block_rect.top:
-                # Player was jumping and collided with the top of the block
-                player.rect.top = block_rect.bottom
+    for block in blocks:
+        if player.rect.colliderect(block.rect):
+            if jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.top:
+                player.rect.top = block.rect.bottom
                 jumping = False
                 on_ground = False
                 gravity = 0.5
-            elif player.rect.right > block_rect.left and player.rect.left < block_rect.left and (player.rect.bottom > block_rect.top + 1 and player.rect.top < block_rect.bottom):
-                # Player collided with the right side of the block
-                player.rect.right = block_rect.left
-            elif player.rect.left < block_rect.right and player.rect.right > block_rect.right and (player.rect.bottom > block_rect.top + 1 and player.rect.top < block_rect.bottom):
-                # Player collided with the left side of the block
-                player.rect.left = block_rect.right
+            elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                player.rect.right = block.rect.left
+            elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                player.rect.left = block.rect.right
             else:
-                # Player collided with the bottom of the block
-                player.rect.y = block_rect.y - player.rect.height
+                player.rect.y = block.rect.y - player.rect.height - 0.6
                 on_ground = True
                 jumping = False
                 gravity = 0
-
-        if player.rect.bottom == block_rect.top and on_ground:
-            if player.rect.left >= block_rect.right or player.rect.right <= block_rect.left:
+        if block.rect.top - player.rect.bottom == 0 and on_ground:
+            if player.rect.left >= block.rect.right or player.rect.right <= block.rect.left:
                 on_ground = False
                 gravity = og_gravity
+
+    # for x, y, image in blocks_layer.tiles():
+    #     # block_rect = pygame.Rect(x * tmxdata.tilewidth, y * tmxdata.tileheight, tmxdata.tilewidth, tmxdata.tileheight)
+    #     block_rect = Block(x * tmxdata.tilewidth, y * tmxdata.tileheight, tmxdata.tilewidth, tmxdata.tileheight).rect
+    #     if player.rect.colliderect(block_rect):
+    #         if jumping and player.rect.top < block_rect.bottom and player.rect.bottom > block_rect.top:
+    #             print(1)
+    #             player.rect.top = block_rect.bottom
+    #             jumping = False
+    #             on_ground = False
+    #             gravity = 0.5
+    #         elif player.rect.right > block_rect.left and player.rect.left < block_rect.left and (player.rect.bottom > block_rect.top + 1 and player.rect.top < block_rect.bottom):
+    #             print(2)
+    #             player.rect.right = block_rect.left
+    #         elif player.rect.left < block_rect.right and player.rect.right > block_rect.right and (player.rect.bottom > block_rect.top + 1 and player.rect.top < block_rect.bottom):
+    #             print(3)
+    #             player.rect.left = block_rect.right
+    #         else:
+    #             print(4)
+    #             player.rect.y = block_rect.y - player.rect.height - 0.6
+    #             on_ground = True
+    #             jumping = False
+    #             gravity = 0
+    #     if player.rect.bottom == block_rect.top and on_ground:
+    #         if player.rect.left >= block_rect.right or player.rect.right <= block_rect.left:
+    #             on_ground = False
+    #             gravity = og_gravity
 
 
     if jumping:
@@ -148,8 +160,11 @@ while running:
         screen.blit(image, (x * tmxdata.tilewidth, y * tmxdata.tileheight))
 
     # Render the blocks layer
-    for x, y, image in blocks_layer.tiles():
-        screen.blit(image, (x * tmxdata.tilewidth, y * tmxdata.tileheight))
+    # for x, y, image in blocks_layer.tiles():
+    #     screen.blit(image, (x * tmxdata.tilewidth, y * tmxdata.tileheight))
+
+    for block in blocks:
+        screen.blit(block.image, block.rect)
 
     screen.blit(player.surf, player.rect)
 

@@ -66,7 +66,7 @@ def create_level(level_data):
         blocks.add(block)
     return blocks
 
-blocks1 = [(2270, 1525, 100, 20), (2440, 1465, 100, 20), (2610, 1405, 100, 20), (2780, 1345, 100, 20), (2950, 1285, 100, 20)]
+blocks1 = [(0, 0, 1500, 2000), (2270, 1525, 100, 20), (2440, 1465, 100, 20), (2610, 1405, 100, 20), (2780, 1345, 100, 20), (2950, 1285, 100, 20), (4000, 0, 6000, 2000)]
 key1 = (3100, 1220)
 door1 = (3600, 1510)
 
@@ -82,10 +82,6 @@ def play(screen):
 
     screen_width = screen.get_width()
     screen_height = screen.get_height()
-
-    level_width = 500
-    level_height = 500
-    game_surface = pygame.Surface((level_width, level_height))
 
     quit_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
     key_collected = False
@@ -109,6 +105,7 @@ def play(screen):
     screen_offset_y = 0
 
     while True:
+        screen_offset_x = min(-1000, max(screen_offset_x, -3500))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
@@ -246,3 +243,4 @@ def play(screen):
 
         quit_button.draw(screen)
         pygame.display.flip()
+
