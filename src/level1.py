@@ -62,7 +62,7 @@ def create_level(blocks, tilewidth, tileheight):
 
 def play(screen):
     pygame.display.set_caption("Nasha Mukti Kendra")
-    tmxdata = load_pygame("assets/maps/level1.tmx")
+    tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
@@ -79,13 +79,13 @@ def play(screen):
         blocks2.add(block)
 
     player = Player()
-    player.rect.x = 400
-    player.rect.y = 450
+    player.rect.x = 1100
+    player.rect.y = 2000
     player_alpha = 255
 
 
-    key = Key(1000, 250)
-    door = Door(1300, 425)
+    key = Key(2500, 2500)
+    door = Door(2600, 2500)
 
     moving_left = False
     moving_right = False
@@ -93,23 +93,24 @@ def play(screen):
 
     standing_block = None
 
-    og_move_speed = 0.3
+    og_move_speed = 1.5
     move_speed = og_move_speed
     move_accumulator = 0
     on_ground = True
 
-    og_gravity = 0.45
+    og_gravity = 2.0
     gravity = og_gravity
     gravity_accumulator = 0
 
-    screen_offset_x = 0
-    screen_offset_y = 600
+    screen_offset_x = -900
+    screen_offset_y = 2000
 
     key_collected = False
     reached = False
 
     running = True
     while running:
+        # print ("yes")
         # screen_offset_x = min(-1000, max(screen_offset_x, -3500))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -138,12 +139,14 @@ def play(screen):
             move_accumulator += move_speed
             if move_accumulator >= 1:
                 player.rect.x += int(move_accumulator)
+                # if screen_offset_x > -10000:
                 screen_offset_x -= int(move_accumulator)
                 move_accumulator %= 1
         if moving_left and not reached:
             move_accumulator += move_speed
             if move_accumulator >= 1:
                 player.rect.x -= int(move_accumulator)
+                # if screen_offset_x < 10000:
                 screen_offset_x += int(move_accumulator)
                 move_accumulator %= 1
 
@@ -170,9 +173,9 @@ def play(screen):
                     gravity = og_gravity
 
         if jumping and not reached:
-            move_speed = og_move_speed + 0.1
-            player.rect.y -= 0.51
-            gravity -= 0.005
+            move_speed = og_move_speed + 0.4
+            player.rect.y -= 5
+            gravity -= 0.05
             if gravity < -0.4:
                 jumping = False
                 gravity = og_gravity
@@ -199,7 +202,7 @@ def play(screen):
         #Falling blocks
         for block in blocks1:
             if block.rect.x - player.rect.x < 30 and block.rect.y < 1000 and key_collected:
-                block.rect.y += 3
+                block.rect.y += 1
 
         screen.fill((0, 0, 0))
 
@@ -248,9 +251,6 @@ def play(screen):
         screen.blit(player.surf, player.rect)
         player.rect.x -= screen_offset_x
         player.rect.y += screen_offset_y
-
-        if screen_offset_y > 300:
-            return False
         
         quit_button.draw(screen)
 
