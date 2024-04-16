@@ -147,28 +147,24 @@ def play(screen):
         for block in blocks2:
             if player.rect.colliderect(block.rect):
                 if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
-                    print(1)
                     player.rect.bottom = block.rect.top
                     jump_speed = 0
                     jumping = False
+                elif jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.bottom:
+                    player.rect.top = block.rect.bottom
+                    jumping = True
+                    jump_speed = 0
                 elif player.rect.right >= block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
-                    print(2)
                     moving_right = False
                     player.rect.right = block.rect.left
                     jumping = True
                     jump_speed = 0
                 elif player.rect.left <= block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
-                    print(3)
                     moving_left = False
                     player.rect.left = block.rect.right
                     jumping = True
                     jump_speed = 0
-                else:
-                    print(4)
-                    player.rect.top = block.rect.bottom
-                    # player.rect.y = block.rect.
-                    jumping = True
-                    jump_speed = 0
+                    
             if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
                 on_a_block = True
         
