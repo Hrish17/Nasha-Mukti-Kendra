@@ -99,6 +99,7 @@ def main():
                                 level_button = level_buttons[i - 1]
                                 if level_button.is_clicked(event.pos):
                                     level = __import__(f"level{i}")
+                                    # level = __import__("level3")
                                     level_completed = level.play(screen)
                                     if level_completed and i == level_number:
                                         levels_completed += 1

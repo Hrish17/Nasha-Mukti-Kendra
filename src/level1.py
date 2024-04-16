@@ -26,14 +26,14 @@ class Key(pygame.sprite.Sprite):
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect()
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
         original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect(center = (x, y))
 
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
@@ -89,18 +89,16 @@ def play(screen):
 
     moving_left = False
     moving_right = False
-    jumping = False
 
-    standing_block = None
-
-    og_move_speed = 1.5
+    og_move_speed = 4
     move_speed = og_move_speed
-    move_accumulator = 0
-    on_ground = True
+    jumping = True
 
-    og_gravity = 2.0
-    gravity = og_gravity
-    gravity_accumulator = 0
+    og_jump_speed = 6
+    jump_speed = 0
+    max_fall_speed = 6
+
+    gravity = 0.25
 
     screen_offset_x = -900
     screen_offset_y = 2000
@@ -126,8 +124,8 @@ def play(screen):
                     moving_right = True
                     moving_left = False
                 if event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
-                    if not jumping and on_ground:
-                        on_ground = False
+                    if not jumping:
+                        jump_speed = og_jump_speed
                         jumping = True
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
@@ -135,59 +133,55 @@ def play(screen):
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     moving_right = False
         
-        if moving_right and not reached:
-            move_accumulator += move_speed
-            if move_accumulator >= 1:
-                player.rect.x += int(move_accumulator)
-                # if screen_offset_x > -10000:
-                screen_offset_x -= int(move_accumulator)
-                move_accumulator %= 1
-        if moving_left and not reached:
-            move_accumulator += move_speed
-            if move_accumulator >= 1:
-                player.rect.x -= int(move_accumulator)
-                # if screen_offset_x < 10000:
-                screen_offset_x += int(move_accumulator)
-                move_accumulator %= 1
+
+        if jumping and not reached:
+            player.rect.y -= jump_speed
+            jump_speed -= gravity
+            if jump_speed <= -max_fall_speed:
+                jump_speed = -max_fall_speed
+            if not jumping:
+                jump_speed = 0
+
+        on_a_block = False
 
         for block in blocks2:
             if player.rect.colliderect(block.rect):
-                if jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.top:
-                    player.rect.top = block.rect.bottom
+                if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
+                    print(1)
+                    player.rect.bottom = block.rect.top
+                    jump_speed = 0
                     jumping = False
-                    on_ground = False
-                    gravity = 0.5
-                elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                elif player.rect.right >= block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
+                    print(2)
+                    moving_right = False
                     player.rect.right = block.rect.left
-                elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                    jumping = True
+                    jump_speed = 0
+                elif player.rect.left <= block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
+                    print(3)
+                    moving_left = False
                     player.rect.left = block.rect.right
+                    jumping = True
+                    jump_speed = 0
                 else:
-                    player.rect.y = block.rect.y - player.rect.height - 1
-                    on_ground = True
-                    standing_block = block
-                    jumping = False
-                    gravity = 0
-            if player.rect.y == block.rect.y - player.rect.height - 1 and on_ground and block == standing_block:
-                if player.rect.left >= block.rect.right or player.rect.right <= block.rect.left:
-                    on_ground = False
-                    gravity = og_gravity
+                    print(4)
+                    player.rect.top = block.rect.bottom
+                    # player.rect.y = block.rect.
+                    jumping = True
+                    jump_speed = 0
+            if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
+                on_a_block = True
+        
+        if not on_a_block:
+            jumping = True
 
-        if jumping and not reached:
-            move_speed = og_move_speed + 0.4
-            player.rect.y -= 5
-            gravity -= 0.05
-            if gravity < -0.4:
-                jumping = False
-                gravity = og_gravity
-                move_speed = og_move_speed
+        if moving_right and not reached:
+            player.rect.x += move_speed
+            screen_offset_x -= move_speed
+        if moving_left and not reached:
+            player.rect.x -= move_speed
+            screen_offset_x += move_speed
 
-        gravity_accumulator += gravity
-        if gravity_accumulator >= 1.1 and not reached:
-            player.rect.y += int(gravity_accumulator)
-            gravity_accumulator %= 1
-
-        if on_ground:
-            move_speed = og_move_speed
 
         if player.rect.y < screen.get_height() // 2:
             screen_offset_y = 0
