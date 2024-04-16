@@ -62,7 +62,7 @@ def create_level(blocks, tilewidth, tileheight):
 
 def play(screen):
     pygame.display.set_caption("Nasha Mukti Kendra")
-    tmxdata = load_pygame("assets/maps/level3.tmx")
+    tmxdata = load_pygame("assets/maps/level1.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
@@ -108,8 +108,6 @@ def play(screen):
 
     running = True
     while running:
-        # print ("yes")
-        # screen_offset_x = min(-1000, max(screen_offset_x, -3500))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
