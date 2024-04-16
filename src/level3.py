@@ -1,21 +1,23 @@
 import pygame
 from pygame.locals import *
-
-pygame.init()
+from pytmx.util_pygame import load_pygame
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((30, 30))
+        self.surf = pygame.Surface((28, 28))
         self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, image):
         super(Block, self).__init__()
-        self.image = pygame.Surface((width, height))
-        self.image.fill((100, 100, 100))
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.surf = pygame.Surface((width, height))
+        self.surf.fill((0, 0, 0))
+        self.rect = self.surf.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.image = image
 
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -24,17 +26,14 @@ class Key(pygame.sprite.Sprite):
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect()
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        self.width = 60
-        self.height = 90
-        self.surf = pygame.Surface((self.width, self.height))
-        self.surf.fill((255, 255, 255))
-        pygame.draw.rect(self.surf, (0, 0, 0), (0, 0, self.width, self.height), 4)
-        self.rect = self.surf.get_rect(topleft=(x, y))
+        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (60, 90))
+        self.rect = self.image.get_rect(center = (x, y))
 
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
@@ -54,59 +53,66 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-
-def create_level(level_data):
-    blocks = pygame.sprite.Group()
-    for block_data in level_data:
-        x, y, width, height = block_data
-        block = Block(x, y, width, height)
-        blocks.add(block)
-    return blocks
-
-blocks1 = [(0, 0, 1500, 2000), (2270, 1525, 100, 20), (2440, 1465, 100, 20), (2610, 1405, 100, 20), (2780, 1345, 100, 20), (2950, 1285, 100, 20), (4000, 0, 6000, 2000)]
-key1 = (3100, 1220)
-door1 = (3600, 1510)
+def create_level(blocks, tilewidth, tileheight):
+    res = pygame.sprite.Group()
+    for x,y,image in blocks.tiles():
+        block = Block(x * tilewidth, y * tileheight, tilewidth, tileheight, image)
+        res.add(block)
+    return res
 
 def play(screen):
     pygame.display.set_caption("Nasha Mukti Kendra")
-    map_width = 10000
-    map_height = 2000
+    tmxdata = load_pygame("assets/maps/level3.tmx")
+    background_layer = tmxdata.get_layer_by_name("Background")
+    blocks_layer = tmxdata.get_layer_by_name("Blocks")
+    blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
+
+    quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
+
+    blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
+    blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
+
+    blocks2 = pygame.sprite.Group()
+    for block in blocks:
+        blocks2.add(block)
+    for block in blocks1:
+        blocks2.add(block)
+
     player = Player()
-    blocks = create_level(blocks1)
-    ground = Block(0, 1600, map_width, map_height - 525)
-    blocks.add(ground)
-    key = Key(key1[0], key1[1])
-    door = Door(door1[0], door1[1])
+    player.rect.x = 1100
+    player.rect.y = 2000
+    player_alpha = 255
 
-    screen_width = screen.get_width()
-    screen_height = screen.get_height()
 
-    quit_button = Button(1150, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
-    key_collected = False
-
-    player.rect.x = 2100
-    player.rect.y = 1500
+    key = Key(2500, 2500)
+    door = Door(2600, 2500)
 
     moving_left = False
     moving_right = False
-    jumping = False
 
-    move_speed = 0.2
-    move_accumulator = 0
-    on_ground = True
+    og_move_speed = 4
+    move_speed = og_move_speed
+    jumping = True
 
-    og_gravity = 0.4
-    gravity = og_gravity
-    gravity_accumulator = 0
+    og_jump_speed = 6
+    jump_speed = 0
+    max_fall_speed = 6
 
-    screen_offset_x = -1700
-    screen_offset_y = 0
+    gravity = 0.25
 
-    while True:
-        screen_offset_x = min(-1000, max(screen_offset_x, -3500))
+    screen_offset_x = -900
+    screen_offset_y = 2000
+
+    key_collected = False
+    reached = False
+
+    running = True
+    while running:
+        # print ("yes")
+        # screen_offset_x = min(-1000, max(screen_offset_x, -3500))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False
+                running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
                     return False
@@ -117,103 +123,92 @@ def play(screen):
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     moving_right = True
                     moving_left = False
-                elif event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
-                    if not jumping and on_ground:
-                        on_ground = False
+                if event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
+                    if not jumping:
+                        jump_speed = og_jump_speed
                         jumping = True
-
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     moving_left = False
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     moving_right = False
+        
 
+        if jumping and not reached:
+            player.rect.y -= jump_speed
+            jump_speed -= gravity
+            if jump_speed <= -max_fall_speed:
+                jump_speed = -max_fall_speed
+            if not jumping:
+                jump_speed = 0
 
-        if moving_right:
-            move_accumulator += move_speed
-            if move_accumulator >= 1:
-                player.rect.x += int(move_accumulator)
-                screen_offset_x -= int(move_accumulator)
-                move_accumulator %= 1
-        if moving_left:
-            move_accumulator += move_speed
-            if move_accumulator >= 1:
-                player.rect.x -= int(move_accumulator)
-                screen_offset_x += int(move_accumulator)
-                move_accumulator %= 1
+        on_a_block = False
 
-        for block in blocks:
+        for block in blocks2:
             if player.rect.colliderect(block.rect):
-                if jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.top:
+                if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
+                    player.rect.bottom = block.rect.top
+                    jump_speed = 0
+                    jumping = False
+                elif jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.bottom:
                     player.rect.top = block.rect.bottom
-                    jumping = False
-                    on_ground = False
-                    gravity = 0.5
-                # elif jumping and player.rect.bottom < block.rect.top:
-                #     print("2")
-                #     player.rect.bottom = block.rect.top
-                #     jumping = False
-                #     gravity = og_gravity
-                elif player.rect.right > block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                    jumping = True
+                    jump_speed = 0
+                elif player.rect.right >= block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
+                    moving_right = False
                     player.rect.right = block.rect.left
-                elif player.rect.left < block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top + 1 and player.rect.top < block.rect.bottom):
+                    screen_offset_x += 4
+                    jumping = True
+                    jump_speed = 0
+                elif player.rect.left <= block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
+                    moving_left = False
                     player.rect.left = block.rect.right
-                else:
-                    player.rect.y = block.rect.y - player.rect.height
-                    on_ground = True
-                    jumping = False
-                    gravity = 0
-            if player.rect.bottom == block.rect.top and on_ground:
-                if player.rect.left >= block.rect.right or player.rect.right <= block.rect.left:
-                    on_ground = False
-                    gravity = og_gravity
-
-        if jumping:
-            player.rect.y -= 0.51
-            gravity -= 0.0045
-            if gravity < -0.5:
-                jumping = False
-                gravity = og_gravity
-
-        gravity_accumulator += gravity
-        if gravity_accumulator >= 1.1:
-            player.rect.y += int(gravity_accumulator)
-            gravity_accumulator %= 1
+                    screen_offset_x -= 4
+                    jumping = True
+                    jump_speed = 0
+                    
+            if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
+                on_a_block = True
         
-        # if(player.rect.y > 500):
-        #     on_ground = True
-        #     player.rect.y = 500
-        #     gravity = 0.5
-        #     jumping = False
+        if not on_a_block:
+            jumping = True
 
-        if(player.rect.left > map_width - 30):
-            player.rect.x = map_width - 30
-        elif(player.rect.x < 0):
-            player.rect.x = 0
+        if moving_right and not reached:
+            player.rect.x += move_speed
+            screen_offset_x -= move_speed
+        if moving_left and not reached:
+            player.rect.x -= move_speed
+            screen_offset_x += move_speed
 
-        if player.rect.colliderect(key.rect):
-            key_collected = True
-        
-        if player.rect.colliderect(door.rect) and key_collected:
-            return True
 
-        # screen.fill((170, 170, 170))
-        # if not key_collected:
-        #     screen.blit(key.image, key.rect)
-        # screen.blit(door.surf, door.rect)
-        # blocks.draw(screen)
-        # screen.blit(player.surf, player.rect)
-        # quit_button.draw(screen)
-        # pygame.display.flip()
         if player.rect.y < screen.get_height() // 2:
             screen_offset_y = 0
         elif player.rect.y > screen.get_height() // 2:
             screen_offset_y = player.rect.y - screen.get_height() // 2
         block_offset_x = -player.rect.x
 
-        screen.fill((170, 170, 170))
-        
+        if player.rect.colliderect(key.rect):
+            key_collected = True
+
+
+        #Falling blocks
+        for block in blocks1:
+            if block.rect.x - player.rect.x < 30 and block.rect.y < 1000 and key_collected:
+                block.rect.y += 1
+
+        screen.fill((0, 0, 0))
+
+        for x, y, image in background_layer.tiles():
+            screen.blit(image, (x * tmxdata.tilewidth + screen_offset_x, y * tmxdata.tileheight - screen_offset_y))
+
         for block in blocks:
+            block.rect.x += screen_offset_x
+            block.rect.y -= screen_offset_y
+            screen.blit(block.image, block.rect)
+            block.rect.x -= screen_offset_x
+            block.rect.y += screen_offset_y
+
+        for block in blocks1:
             block.rect.x += screen_offset_x
             block.rect.y -= screen_offset_y
             screen.blit(block.image, block.rect)
@@ -227,18 +222,28 @@ def play(screen):
             key.rect.x -= screen_offset_x
             key.rect.y += screen_offset_y
 
+        if key_collected:
+            if player.rect.center[0] == door.rect.center[0] and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
+                reached = True
+                if player_alpha > 0:
+                    player_alpha -= 1
+                else:
+                    return True
+
+
         door.rect.x += screen_offset_x
         door.rect.y -= screen_offset_y
-        screen.blit(door.surf, door.rect)
+        screen.blit(door.image, door.rect)
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
 
         player.rect.x += screen_offset_x
         player.rect.y -= screen_offset_y
+        player.surf.set_alpha(player_alpha)
         screen.blit(player.surf, player.rect)
         player.rect.x -= screen_offset_x
         player.rect.y += screen_offset_y
-
+        
         quit_button.draw(screen)
-        pygame.display.flip()
 
+        pygame.display.flip()

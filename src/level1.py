@@ -157,11 +157,13 @@ def play(screen):
                 elif player.rect.right >= block.rect.left and player.rect.left < block.rect.left and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
                     moving_right = False
                     player.rect.right = block.rect.left
+                    screen_offset_x += 4
                     jumping = True
                     jump_speed = 0
                 elif player.rect.left <= block.rect.right and player.rect.right > block.rect.right and (player.rect.bottom > block.rect.top and player.rect.top < block.rect.bottom):
                     moving_left = False
                     player.rect.left = block.rect.right
+                    screen_offset_x -= 4
                     jumping = True
                     jump_speed = 0
                     
