@@ -26,7 +26,7 @@ class Key(pygame.sprite.Sprite):
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(topleft=(x,y))
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -46,7 +46,7 @@ class Money():
     def __init__(self, x, y):
         super(Money, self).__init__()
         original_image = pygame.image.load("assets/images/money.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (50, 50))
+        self.image = pygame.transform.scale(original_image, (30, 30))
         self.rect = self.image.get_rect(topleft=(x,y))
 
 class Button:
@@ -79,17 +79,17 @@ def play(screen):
     tmxdata = load_pygame("assets/maps/level4.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
-    blocks1_layer = tmxdata.get_layer_by_name("KillerBlocks")
+    killing_blocks_layer = tmxdata.get_layer_by_name("KillerBlocks")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
+    killing_blocks = create_level(killing_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
 
     blocks2 = pygame.sprite.Group()
     for block in blocks:
         blocks2.add(block)
-    for block in blocks1:
+    for block in killing_blocks:
         blocks2.add(block)
 
     player = Player()
@@ -98,11 +98,13 @@ def play(screen):
     player_alpha = 255
 
 
-    key = Key(2500, 2500)
-    door = Door(2600, 2500)
+    key = Key(2500, 1900)
+    door = Door(4500, 1930)
 
-    money1 = Money(2400, 1940)
-    money2 = Money(2600, 1940)
+    # print(key.rect.x, key.rect.y)
+
+    money1 = Money(2400, 1960)
+    money2 = Money(2600, 1960)
     money = [money1, money2]
 
     opium = Opium(2240, 1940)
@@ -165,7 +167,7 @@ def play(screen):
 
         on_a_block = False
 
-        for block in blocks2:
+        for block in blocks:
             if player.rect.colliderect(block.rect):
                 if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
                     player.rect.bottom = block.rect.top
@@ -187,6 +189,10 @@ def play(screen):
                     screen_offset_x -= 4
                     jumping = True
                     jump_speed = 0
+
+        # for block in killing_blocks:
+        #     if player.rect.colliderect(block.rect):
+        #         return False
                     
             if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
                 on_a_block = True
@@ -212,7 +218,7 @@ def play(screen):
             if player.rect.colliderect(mony.rect):
                 mony.rect.x = 0
                 mony.rect.y = 0
-                move_speed -= 1
+                move_speed -= 0.1
 
         if player.rect.colliderect(key.rect):
             key_collected = True
@@ -224,11 +230,6 @@ def play(screen):
         if running_opium and dist_opium_moved < 2400:
             opium.rect.x += 4
             dist_opium_moved += 4
-
-        #Falling blocks
-        for block in blocks1:
-            if block.rect.x - player.rect.x < 30 and block.rect.y < 1000 and key_collected:
-                block.rect.y += 1
 
         screen.fill((0, 0, 0))
 
@@ -242,22 +243,15 @@ def play(screen):
             block.rect.x -= screen_offset_x
             block.rect.y += screen_offset_y
 
-        for block in blocks1:
+        for block in killing_blocks:
             block.rect.x += screen_offset_x
             block.rect.y -= screen_offset_y
             screen.blit(block.image, block.rect)
             block.rect.x -= screen_offset_x
             block.rect.y += screen_offset_y
 
-        if not key_collected:
-            key.rect.x += screen_offset_x
-            key.rect.y -= screen_offset_y
-            screen.blit(key.image, key.rect)
-            key.rect.x -= screen_offset_x
-            key.rect.y += screen_offset_y
-
         if key_collected:
-            if player.rect.center[0] == door.rect.center[0] and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
+            if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                 reached = True
                 if player_alpha > 0:
                     player_alpha -= 1
@@ -271,11 +265,26 @@ def play(screen):
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
 
+        for mony in money:
+            mony.rect.x += screen_offset_x
+            mony.rect.y -= screen_offset_y
+            screen.blit(mony.image, mony.rect)
+            mony.rect.x -= screen_offset_x
+            mony.rect.y += screen_offset_y
+
         opium.rect.x += screen_offset_x
         opium.rect.y -= screen_offset_y
         screen.blit(opium.image, opium.rect)
         opium.rect.x -= screen_offset_x
         opium.rect.y += screen_offset_y
+
+        if not key_collected:
+            key.rect.x += screen_offset_x
+            key.rect.y -= screen_offset_y
+            screen.blit(key.image, key.rect)
+            key.rect.x -= screen_offset_x
+            key.rect.y += screen_offset_y
+            # print(key.rect.x, key.rect.y)
 
         player.rect.x += screen_offset_x
         player.rect.y -= screen_offset_y
