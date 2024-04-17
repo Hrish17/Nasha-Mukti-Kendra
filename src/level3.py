@@ -82,18 +82,10 @@ def play(screen):
     tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
-    blocks1_layer = tmxdata.get_layer_by_name("KillerBlocks")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
-
-    blocks2 = pygame.sprite.Group()
-    for block in blocks:
-        blocks2.add(block)
-    for block in blocks1:
-        blocks2.add(block)
 
     player = Player()
     player.rect.x = 1100
@@ -141,10 +133,10 @@ def play(screen):
         # screen_offset_x = min(-1000, max(screen_offset_x, -3500))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                return -1
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
-                    return False
+                    return -1
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     moving_left = True
@@ -174,7 +166,7 @@ def play(screen):
 
         on_a_block = False
 
-        for block in blocks2:
+        for block in blocks:
             if player.rect.colliderect(block.rect):
                 if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
                     player.rect.bottom = block.rect.top
@@ -233,7 +225,7 @@ def play(screen):
 
         for cigar in cigars:
             if player.rect.colliderect(cigar.rect):
-                return False
+                return -1
                 
 
         screen.fill((0, 0, 0))
@@ -262,7 +254,7 @@ def play(screen):
                 if player_alpha > 0:
                     player_alpha -= 6
                 else:
-                    return True
+                    return 1
                 
         if not key_collected:
             key.rect.x += screen_offset_x
@@ -278,12 +270,6 @@ def play(screen):
             block.rect.x -= screen_offset_x
             block.rect.y += screen_offset_y
         
-        for block in blocks1:
-            block.rect.x += screen_offset_x
-            block.rect.y -= screen_offset_y
-            screen.blit(block.image, block.rect)
-            block.rect.x -= screen_offset_x
-            block.rect.y += screen_offset_y
 
         door.rect.x += screen_offset_x
         door.rect.y -= screen_offset_y

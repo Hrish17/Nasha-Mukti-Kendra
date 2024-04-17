@@ -145,20 +145,12 @@ def main():
             screen.blit(controls_image.image, controls_image.rect)
             mouse_pos = pygame.mouse.get_pos()
             back_button.draw(screen, mouse_pos, 1)
-            if back_button.rect.collidepoint(mouse_pos):
-                logo_beer.rect.x = screen_width/2 + 50
-                logo_beer.rect.y = 480
-                screen.blit(logo_beer.image, logo_beer.rect)
             pygame.display.flip()
         elif screen_number == 3:
             screen.fill((43, 44, 48))
             levels_heading.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
             back_button.draw(screen, mouse_pos, 1)
-            if back_button.rect.collidepoint(mouse_pos):
-                logo_beer.rect.x = screen_width/2 + 50
-                logo_beer.rect.y = 480
-                screen.blit(logo_beer.image, logo_beer.rect)
             level_buttons = []
             for i in range(1, (total_levels // 6) + 2):
                 for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
