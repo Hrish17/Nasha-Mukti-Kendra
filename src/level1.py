@@ -22,6 +22,7 @@ class Text:
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
@@ -38,6 +39,15 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.image = image
+
+class Background(pygame.sprite.Sprite):
+    def __init__(self,x,y,width,height,color):
+        super(Background, self).__init__()
+        self.surf = pygame.Surface((width, height))
+        self.surf.fill(color)
+        self.rect = self.surf.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -56,16 +66,20 @@ class Door(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = (x, y))
 
 class Button:
-    def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
+    def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, action=None):
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
+        self.hover_color = hover_color  # New attribute for hover color
         self.text = text
         self.font = font
         self.text_color = text_color
         self.action = action
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
+    def draw(self, screen, mouse_pos, hover):
+        if self.rect.collidepoint(mouse_pos) and hover:
+            pygame.draw.rect(screen, self.hover_color, self.rect)
+        else:
+            pygame.draw.rect(screen, self.color, self.rect)
         font_surface = self.font.render(self.text, True, self.text_color)
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
@@ -84,10 +98,9 @@ def play(screen):
     pygame.display.set_caption("NASHA MUKTI KENDRA")
 
     screen_number = 1
-    begin_button = Button(screen.get_width()/2 - 75, 500, 150, 50, (0, 0, 0), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255))
-    controls = Text(screen.get_width()/2, 80, 'CONTROLS', pygame.font.Font(None, 60), (0, 0, 0))
-    controls_image = Image(screen.get_width()/2 - 400, 150, pygame.image.load("assets/images/controls.png"), 800, 250)
-    rule = Text(screen.get_width()/2, 450, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 30), (67, 56, 165))
+    rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
+    disclaimer = Text(screen.get_width()/2, 300, 'DISCLAIMER : This game contains elements of surprise!', pygame.font.Font(None, 50), (255, 0, 0))
+    begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
     tmxdata = load_pygame("assets/maps/level1.tmx")
@@ -95,7 +108,7 @@ def play(screen):
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
 
-    quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
+    quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (0, 0, 0))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
     blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
@@ -136,6 +149,13 @@ def play(screen):
 
     falling_blocks = False
 
+    background = Background(200, 100, 700, 400, (43, 44, 48))
+    gameover_text = Text(screen.get_width()/2, 200, 'GAME OVER', pygame.font.Font(None, 80), (255, 0, 0))
+    main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    gameover = False
+
+
     running = True
     while running:
         if screen_number == 1:
@@ -145,11 +165,11 @@ def play(screen):
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if begin_button.is_clicked(event.pos):
                         screen_number = 2
-            screen.fill((255, 255, 255))
-            controls.draw(screen)
-            screen.blit(controls_image.image, controls_image.rect)
+            screen.fill((43, 44, 48))
+            disclaimer.draw(screen)
             rule.draw(screen)
-            begin_button.draw(screen)
+            mouse_pos = pygame.mouse.get_pos()
+            begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
 
         elif screen_number == 2:
@@ -158,7 +178,7 @@ def play(screen):
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if quit_button.is_clicked(event.pos):
-                        return False
+                        return -1
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         moving_left = True
@@ -187,9 +207,6 @@ def play(screen):
                     jump_speed = 0
 
             on_a_block = False
-
-            # stopRight = False
-            # stopLeft = False
 
             for block in blocks2:
                 if player.rect.colliderect(block.rect):
@@ -228,10 +245,10 @@ def play(screen):
             if not on_a_block:
                 jumping = True
 
-            if moving_right and not reached:
+            if moving_right and not reached and not gameover:
                 player.rect.x += move_speed
                 screen_offset_x -= move_speed
-            if moving_left and not reached:
+            if moving_left and not reached and not gameover:
                 player.rect.x -= move_speed
                 screen_offset_x += move_speed
 
@@ -256,6 +273,9 @@ def play(screen):
             if falling_blocks:
                 for block in blocks1:
                     block.rect.y += 6
+            
+            if player.rect.y > 2800:
+                gameover = True
 
             screen.fill((0, 0, 0))
 
@@ -289,7 +309,7 @@ def play(screen):
                     if player_alpha > 0:
                         player_alpha -= 6
                     else:
-                        return True
+                        return 1
 
             door.rect.x += screen_offset_x
             door.rect.y -= screen_offset_y
@@ -304,6 +324,19 @@ def play(screen):
             player.rect.x -= screen_offset_x
             player.rect.y += screen_offset_y
             
-            quit_button.draw(screen)
+            mouse_pos = pygame.mouse.get_pos()
+            quit_button.draw(screen, mouse_pos, 0)
+
+            if gameover:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if main_menu_button.is_clicked(event.pos):
+                            return -1
+                        elif retry_button.is_clicked(event.pos):
+                            return 0
+                screen.blit(background.surf, background.rect)
+                gameover_text.draw(screen)
+                main_menu_button.draw(screen, mouse_pos, 1)
+                retry_button.draw(screen, mouse_pos, 1)
 
             pygame.display.flip()

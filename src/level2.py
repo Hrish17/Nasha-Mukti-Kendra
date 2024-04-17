@@ -129,7 +129,7 @@ def play(screen):
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_button.is_clicked(event.pos):
-                    return False
+                    return -1
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                     moving_left = True
@@ -206,7 +206,7 @@ def play(screen):
         
         #Moving cigar
         if player.rect.colliderect(cigar.rect):
-            return False
+            return -1
         
         if cigar.rect.x - player.rect.x < 200 and player.rect.y - cigar.rect.y < 100:
             running_cigar = True
@@ -256,7 +256,7 @@ def play(screen):
                 if player_alpha > 0:
                     player_alpha -= 6
                 else:
-                    return True
+                    return 1
 
         door.rect.x += screen_offset_x
         door.rect.y -= screen_offset_y

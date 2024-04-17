@@ -11,15 +11,8 @@ class Button:
         self.text_color = text_color
         self.action = action
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
-        font_surface = self.font.render(self.text, True, self.text_color)
-        font_rect = font_surface.get_rect(center=self.rect.center)
-        screen.blit(font_surface, font_rect)
-
-    def draw_with_hover(self, screen, mouse_pos):
-        # Check if mouse is over the button
-        if self.rect.collidepoint(mouse_pos):
+    def draw(self, screen, mouse_pos, hover):
+        if self.rect.collidepoint(mouse_pos) and hover:
             pygame.draw.rect(screen, self.hover_color, self.rect)
         else:
             pygame.draw.rect(screen, self.color, self.rect)
@@ -30,7 +23,20 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-    
+
+
+class Text:
+    def __init__(self, x, y, text, font, color):
+        self.text = text
+        self.font = font
+        self.color = color
+        self.rect = pygame.Rect(x, y, 0, 0)
+
+    def draw(self, screen):
+        font_surface = self.font.render(self.text, True, self.color)
+        font_rect = font_surface.get_rect(center=self.rect.center)
+        screen.blit(font_surface, font_rect)
+
 class Heading:
     def __init__(self, x, y, text, font, color):
         self.text = text
@@ -50,11 +56,20 @@ class Image(pygame.sprite.Sprite):
         self.width = width
         self.height = height
 
+def start_level(screen, level_number):
+    level = __import__(f"level{level_number}")
+    next = level.play(screen)
+    if next == 1:
+        level_number += 1
+        start_level(screen, level_number)
+    elif next == 0:
+        start_level(screen, level_number)
+    return level_number
+
 def main():
-    levels_completed = 0
-    total_levels = 7
+    levels_unlocked = 1
+    total_levels = 10
     pygame.init()
-    info = pygame.display.Info()
     screen_width = 1080
     screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
@@ -62,32 +77,48 @@ def main():
     logo = pygame.image.load('assets/images/logo.png')
     logo = Image(screen_width/2 - 250, 40, logo, 500, 400)
     logo_beer = pygame.image.load('assets/images/logo_beer.png')
-    rotated_logo_beer = pygame.transform.rotate(logo_beer, 20)
-    logo_beer = Image(screen_width/2 - 500, 80, rotated_logo_beer, 200, 150)
+    rotated_logo_beer = pygame.transform.rotate(logo_beer, -20)
+    logo_beer = Image(screen_width/2 + 70, 380, rotated_logo_beer, 90, 70)
 
     button_font = pygame.font.Font(None, 50)
-    play_button = Button(screen_width/2 - 100, 400, 200, 50, (43, 44, 48), 'PLAY', button_font, (255, 255, 255), (100, 100, 100))
-    quit_button = Button(screen_width/2 - 100, 500, 200, 50, (43, 44, 48), 'QUIT', button_font, (255, 255, 255), (100, 100, 100))
+    play_button = Button(screen_width/2 - 60, 390, 120, 50, (43, 44, 48), 'PLAY', button_font, (255, 255, 255), (100, 100, 100))
+    controls_button = Button(screen_width/2 - 115, 450, 230, 50, (43, 44, 48), 'CONTROLS', button_font, (255, 255, 255), (100, 100, 100))
+    quit_button = Button(screen_width/2 - 60, 510, 120, 50, (43, 44, 48), 'QUIT', button_font, (255, 255, 255), (100, 100, 100))
 
 
-    font_heading = pygame.font.Font(None, 48)
-    levels_heading = Heading(screen_width/2, 100, 'LEVELS', font_heading, (0, 0, 0))
+    controls = Text(screen.get_width()/2, 100, 'CONTROLS', pygame.font.Font(None, 70), (255, 255, 255))
+    controls_image = Image(screen.get_width()/2 - 400, 190, pygame.image.load("assets/images/controls.png"), 800, 300)
+
+    font_heading = pygame.font.Font(None, 60)
+    levels_heading = Heading(screen_width/2, 160, 'LEVELS', font_heading, (255, 255, 255))
     font_button = pygame.font.Font(None, 36)
-    back_button = Button(screen_width - 130, 40, 100, 50, (0, 0, 0), 'Back', font_button, (255, 255, 255), (100, 100, 100))
+    back_button = Button(screen_width/2 - 60, 490, 120, 50, (43, 44, 48), 'BACK', font_button, (255, 255, 255), (100, 100, 100))
+    level_font_button = pygame.font.Font(None, 50)
     
-    level_number = levels_completed + 1
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
-    on_levels = False
+    screen_number = 1
     clock= pygame.time.Clock()
     while True:
-        if not on_levels:
+        if screen_number == 1:
             screen.fill((43, 44, 48))
             font_heading = pygame.font.Font(None, 60)
             screen.blit(logo.image, logo.rect)
-            screen.blit(logo_beer.image, logo_beer.rect)
             mouse_pos = pygame.mouse.get_pos()
-            play_button.draw_with_hover(screen, mouse_pos)
-            quit_button.draw_with_hover(screen, mouse_pos)
+            play_button.draw(screen, mouse_pos, 1)
+            controls_button.draw(screen, mouse_pos, 1)
+            quit_button.draw(screen, mouse_pos, 1)
+            if play_button.rect.collidepoint(mouse_pos):
+                logo_beer.rect.x = screen_width / 2 + 50
+                logo_beer.rect.y = 380
+                screen.blit(logo_beer.image, logo_beer.rect)
+            elif controls_button.rect.collidepoint(mouse_pos):
+                logo_beer.rect.x = screen_width/2 + 110
+                logo_beer.rect.y = 440
+                screen.blit(logo_beer.image, logo_beer.rect)
+            elif quit_button.rect.collidepoint(mouse_pos):
+                logo_beer.rect.x = screen_width/2 + 50
+                logo_beer.rect.y = 500
+                screen.blit(logo_beer.image, logo_beer.rect)
             pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -95,23 +126,49 @@ def main():
                     return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if play_button.is_clicked(event.pos):
-                        on_levels = True
+                        screen_number = 3
+                    elif controls_button.is_clicked(event.pos):
+                        screen_number = 2
                     elif quit_button.is_clicked(event.pos):
                         pygame.quit()
                         return
-        else:
-            screen.fill((255, 255, 255))
+        elif screen_number == 2:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button.is_clicked(event.pos):
+                        screen_number = 1
+            screen.fill((43, 44, 48))
+            controls.draw(screen)
+            screen.blit(controls_image.image, controls_image.rect)
+            mouse_pos = pygame.mouse.get_pos()
+            back_button.draw(screen, mouse_pos, 1)
+            if back_button.rect.collidepoint(mouse_pos):
+                logo_beer.rect.x = screen_width/2 + 50
+                logo_beer.rect.y = 480
+                screen.blit(logo_beer.image, logo_beer.rect)
+            pygame.display.flip()
+        elif screen_number == 3:
+            screen.fill((43, 44, 48))
             levels_heading.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
-            back_button.draw_with_hover(screen, mouse_pos)
+            back_button.draw(screen, mouse_pos, 1)
+            if back_button.rect.collidepoint(mouse_pos):
+                logo_beer.rect.x = screen_width/2 + 50
+                logo_beer.rect.y = 480
+                screen.blit(logo_beer.image, logo_beer.rect)
             level_buttons = []
             for i in range(1, (total_levels // 6) + 2):
                 for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
-                    level_button = Button(150 * j, 100 + 100 * i, 50, 50, (0, 0, 0), f'{6*(i-1) + j}', font_button, (255, 255, 255), (100, 100, 100))
+                    level_button = Button(150 * j, 150 + 100 * i, 50, 50, (100, 100, 100), f'{6*(i-1) + j}', level_font_button, (255, 255, 255), (80, 80, 80))
                     level_buttons.append(level_button)
-                    if 5*(i-1) + j > levels_completed + 1:
-                        level_button.color = (150, 150, 150)
-                    level_button.draw(screen)
+                    if 5*(i-1) + j > levels_unlocked:
+                        level_button.color = (43, 44, 48)
+                        level_button.draw(screen, mouse_pos, 0)
+                    else:
+                        level_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
             clock.tick(100)
             for event in pygame.event.get():
@@ -120,18 +177,19 @@ def main():
                     return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if back_button.is_clicked(event.pos):
-                        on_levels = False
+                        screen_number = 1
                     else:
                         for i in range(1, total_levels + 1):
-                            if i > levels_completed + 1:
+                            if i > levels_unlocked:
                                 continue
                             else:
                                 level_button = level_buttons[i - 1]
                                 if level_button.is_clicked(event.pos):
-                                    level = __import__(f"level{i}")
-                                    level_completed = level.play(screen)
-                                    if level_completed and i == level_number:
-                                        levels_completed += 1
-                                        level_number += 1
+                                    l_number = start_level(screen, i)
+                                    if l_number > levels_unlocked:
+                                        levels_unlocked = l_number
+                                    # if level_completed and i == level_number:
+                                    #     levels_completed += 1
+                                    #     level_number += 1
 
 main()
