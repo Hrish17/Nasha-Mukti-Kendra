@@ -234,9 +234,9 @@ def play(screen):
                 # player.rect.bottom = block.rect.top
                 running_block_v = True
             if running_block_v and block.rect.y > 2050:
-                # if (player.rect.left > 2432 and player.rect.right < 2528):
-                #     player.rect.y -= 2
-                block.rect.y -= 2
+                if (player.rect.left > 2432 and player.rect.right < 2528):
+                    player.rect.y -= 2
+                    block.rect.y -= 2
 
         for block in moving_blocks_h:
             if not running_block_h and player.rect.right > block.rect.left:
