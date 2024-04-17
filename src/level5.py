@@ -5,7 +5,7 @@ from pytmx.util_pygame import load_pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf = pygame.Surface((28, 40))
+        self.surf = pygame.Surface((28, 28))
         self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
 
@@ -38,7 +38,7 @@ class Door(pygame.sprite.Sprite):
 class Cigar():
     def __init__(self, x, y):
         super(Cigar, self).__init__()
-        original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
+        original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
@@ -80,22 +80,17 @@ def play(screen):
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     killing_blocks_layer = tmxdata.get_layer_by_name("KillerBlocks")
-    moving_blocks_layer = tmxdata.get_layer_by_name("MovingBlocks")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
     killing_blocks = create_level(killing_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    moving_blocks = create_level(moving_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
 
     blocks2 = pygame.sprite.Group()
     for block in blocks:
         blocks2.add(block)
     for block in killing_blocks:
         blocks2.add(block)
-    for block in moving_blocks:
-        blocks2.add(block)
-        blocks.add(block)
 
     player = Player()
     player.rect.x = 1100
@@ -131,9 +126,6 @@ def play(screen):
 
     key_collected = False
     reached = False
-
-    running_block = False
-    dist_block_moved = 0
 
     # running_cigar = False
     # dist_cigar_moved = 0
@@ -227,20 +219,11 @@ def play(screen):
         if player.rect.colliderect(intial_cigar.rect):
             intial_cigar.rect.x = 0
             intial_cigar.rect.y = 0
-            move_speed -= 0.2
-
-        for block in moving_blocks:
-            if not running_block and player.rect.left > block.rect.right:
-                running_block = True
-            if running_block and block.rect.x < 4000:
-                block.rect.x += 2
-                if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
-                    player.rect.x += 2
-                    screen_offset_x -= 2
+            # move_speed -= 0.2
 
         for cigar in cigars:
             if player.rect.colliderect(cigar.rect):
-                move_speed -= 0.2
+                # move_speed -= 0.2
                 cigar.rect.x = 0
                 cigar.rect.y = 0
             if (cigar.rect.x - player.rect.x) < 200:
@@ -264,13 +247,6 @@ def play(screen):
             screen.blit(block.image, block.rect)
             block.rect.x -= screen_offset_x
             block.rect.y += screen_offset_y
-
-        # for block in moving_blocks:
-        #     block.rect.x += screen_offset_x
-        #     block.rect.y -= screen_offset_y
-        #     screen.blit(block.image, block.rect)
-        #     block.rect.x -= screen_offset_x
-        #     block.rect.y += screen_offset_y
 
         if key_collected:
             if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
@@ -317,4 +293,3 @@ def play(screen):
         quit_button.draw(screen)
 
         pygame.display.flip()
-
