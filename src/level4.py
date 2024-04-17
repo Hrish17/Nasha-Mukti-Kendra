@@ -35,11 +35,11 @@ class Door(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(center = (x, y))
 
-class Opium():
+class Cigar():
     def __init__(self, x, y):
-        super(Opium, self).__init__()
+        super(Cigar, self).__init__()
         original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (50, 50))
+        self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
 class Money():
@@ -99,15 +99,14 @@ def play(screen):
 
 
     key = Key(2500, 1900)
-    door = Door(4500, 1930)
+    door = Door(4500, 1940)
 
     # print(key.rect.x, key.rect.y)
-
-    money1 = Money(2400, 1960)
-    money2 = Money(2600, 1960)
-    money = [money1, money2]
-
-    opium = Opium(2240, 1940)
+    intial_cigar = Cigar(2300, 1940)
+    cigar1 = Cigar(2450, 1700)
+    cigar2 = Cigar(2550, 1700)
+    cigar3 = Cigar(2650, 1700)
+    cigars = [cigar1, cigar2, cigar3]
 
     moving_left = False
     moving_right = False
@@ -128,8 +127,8 @@ def play(screen):
     key_collected = False
     reached = False
 
-    running_opium = False
-    dist_opium_moved = 0
+    # running_cigar = False
+    # dist_cigar_moved = 0
 
     running = True
     while running:
@@ -189,13 +188,13 @@ def play(screen):
                     screen_offset_x -= 4
                     jumping = True
                     jump_speed = 0
-
-        # for block in killing_blocks:
-        #     if player.rect.colliderect(block.rect):
-        #         return False
                     
             if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
                 on_a_block = True
+
+        for block in killing_blocks:
+            if player.rect.colliderect(block.rect):
+                return False
         
         if not on_a_block:
             jumping = True
@@ -214,23 +213,22 @@ def play(screen):
             screen_offset_y = player.rect.y - screen.get_height() // 2
         block_offset_x = -player.rect.x
 
-        for mony in money:
-            if player.rect.colliderect(mony.rect):
-                mony.rect.x = 0
-                mony.rect.y = 0
-                move_speed -= 0.1
-
         if player.rect.colliderect(key.rect):
             key_collected = True
 
-        if player.rect.colliderect(opium.rect):
-            return False
-        if player.rect.x - opium.rect.x > 150:
-            running_opium = True
-        if running_opium and dist_opium_moved < 2400:
-            opium.rect.x += 4
-            dist_opium_moved += 4
+        if player.rect.colliderect(intial_cigar.rect):
+            intial_cigar.rect.x = 0
+            intial_cigar.rect.y = 0
+            # move_speed -= 0.2
 
+        for cigar in cigars:
+            if player.rect.colliderect(cigar.rect):
+                # move_speed -= 0.2
+                cigar.rect.x = 0
+                cigar.rect.y = 0
+            if (cigar.rect.x - player.rect.x) < 200:
+                if cigar.rect.y < 1940:
+                    cigar.rect.y += 4
         screen.fill((0, 0, 0))
 
         for x, y, image in background_layer.tiles():
@@ -265,18 +263,17 @@ def play(screen):
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
 
-        for mony in money:
-            mony.rect.x += screen_offset_x
-            mony.rect.y -= screen_offset_y
-            screen.blit(mony.image, mony.rect)
-            mony.rect.x -= screen_offset_x
-            mony.rect.y += screen_offset_y
-
-        opium.rect.x += screen_offset_x
-        opium.rect.y -= screen_offset_y
-        screen.blit(opium.image, opium.rect)
-        opium.rect.x -= screen_offset_x
-        opium.rect.y += screen_offset_y
+        intial_cigar.rect.x += screen_offset_x
+        intial_cigar.rect.y -= screen_offset_y
+        screen.blit(intial_cigar.image, intial_cigar.rect)
+        intial_cigar.rect.x -= screen_offset_x
+        intial_cigar.rect.y += screen_offset_y
+        for cigar in cigars:
+            cigar.rect.x += screen_offset_x
+            cigar.rect.y -= screen_offset_y
+            screen.blit(cigar.image, cigar.rect)
+            cigar.rect.x -= screen_offset_x
+            cigar.rect.y += screen_offset_y
 
         if not key_collected:
             key.rect.x += screen_offset_x
