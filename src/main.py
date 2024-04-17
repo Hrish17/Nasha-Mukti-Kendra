@@ -39,7 +39,7 @@ def main():
     screen_width = 1080
     screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Nasha Mukti Kendra")
+    pygame.display.set_caption("AWARE US")
     level_number = levels_completed + 1
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     on_levels = False
@@ -48,7 +48,7 @@ def main():
         if not on_levels:
             screen.fill((255, 255, 255))
             font_heading = pygame.font.Font(None, 60)
-            heading = Heading(screen_width/2, 250, 'Nasha Mukti Kendra', font_heading, (0, 0, 0))
+            heading = Heading(screen_width/2, 250, 'AWARE US', font_heading, (0, 0, 0))
             heading.draw(screen)
             button_font = pygame.font.Font(None, 36)
             play_button = Button(screen_width/2 - 100, 400, 200, 50, (0, 0, 0), 'Play', button_font, (255, 255, 255))
@@ -99,12 +99,9 @@ def main():
                                 level_button = level_buttons[i - 1]
                                 if level_button.is_clicked(event.pos):
                                     level = __import__(f"level{i}")
-                                    # level = __import__("level3")
                                     level_completed = level.play(screen)
                                     if level_completed and i == level_number:
                                         levels_completed += 1
                                         level_number += 1
-
-
 
 main()

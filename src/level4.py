@@ -42,6 +42,13 @@ class Cigar(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
+class Cherry(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Cherry, self).__init__()
+        original_image = pygame.image.load("assets/images/cherries.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (50, 50))
+        self.rect = self.image.get_rect(topleft=(x, y))
+
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, action=None):
         self.rect = pygame.Rect(x, y, width, height)
@@ -67,9 +74,12 @@ def create_level(blocks, tilewidth, tileheight):
         res.add(block)
     return res
 
+def dist(x1,y1,x2,y2):
+    return ((x1-x2)**2 + (y1-y2)**2)**0.5
+
 def play(screen):
     pygame.display.set_caption("AWARE US")
-    tmxdata = load_pygame("assets/maps/level2.tmx")
+    tmxdata = load_pygame("assets/maps/level4.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
@@ -90,24 +100,29 @@ def play(screen):
     player.rect.y = 2532
     player_alpha = 255
 
+    key = Key(1700, 2520)
+    door = Door(2780, 2150)
 
-    key = Key(2250, 2300)
-    door = Door(2600, 2470)
+    cherry1 = Cherry(1540, 2385)
+    cherry2 = Cherry(1780, 2321)
+    cherry3 = Cherry(2200, 2257)
+    cherries = [cherry1, cherry2, cherry3]
 
-    cigar = Cigar(2000, 2380)
+    cigar1 = Cigar(1685, 2510)
+    cigar2 = Cigar(2200, 2257)
+    cigars = [cigar1, cigar2]
 
     moving_left = False
     moving_right = False
 
-    og_move_speed = 4
-    move_speed = og_move_speed
+    move_speed = 4
     jumping = True
 
     og_jump_speed = 6
     jump_speed = 0
     max_fall_speed = 6
 
-    gravity = 0.27
+    gravity = 0.25
 
     screen_offset_x = -900
     screen_offset_y = 0
@@ -115,8 +130,8 @@ def play(screen):
     key_collected = False
     reached = False
 
-    running_cigar = False
-    dist_cigar_moved = 0
+    show_cigar1 = False
+    show_cigar2 = False
 
     falling_blocks = False
 
@@ -201,34 +216,61 @@ def play(screen):
         elif player.rect.y > screen.get_height() // 2:
             screen_offset_y = player.rect.y - screen.get_height() // 2 - 100
 
-        if player.rect.colliderect(key.rect):
-            key_collected = True
-        
-        #Moving cigar
-        if player.rect.colliderect(cigar.rect):
-            return False
-        
-        if cigar.rect.x - player.rect.x < 200 and player.rect.y - cigar.rect.y < 100:
-            running_cigar = True
-
-        if running_cigar and dist_cigar_moved < 300:
-            cigar.rect.x -= 5
-            dist_cigar_moved += 5
-
         #Falling blocks
-        for block in blocks1:
-            if block.rect.x - player.rect.x < 30 and key_collected:
-                falling_blocks = True
+        # for block in blocks1:
+        #     if block.rect.x - player.rect.x < 30 and key_collected:
+        #         falling_blocks = True
 
-        if falling_blocks:
-            for block in blocks1:
-                block.rect.y += 6
+        # if falling_blocks:
+        #     for block in blocks1:
+        #         block.rect.y += 6
+
+        for cherry in cherries:
+            if player.rect.colliderect(cherry.rect):
+                cherry.rect.x = 0
+                cherry.rect.y = 0
+                move_speed += 1
+
+        for cigar in cigars:
+            if player.rect.colliderect(cigar.rect):
+                return False
+                
 
         screen.fill((0, 0, 0))
 
         for x, y, image in background_layer.tiles():
             screen.blit(image, (x * tmxdata.tilewidth + screen_offset_x, y * tmxdata.tileheight - screen_offset_y))
+            
+        if not show_cigar1:
+            if dist(player.rect.center[0], player.rect.center[1], key.rect.center[0], key.rect.center[1]) < 125:
+                show_cigar1 = True
+                key.rect.x += 250
 
+        if not show_cigar2:
+            if dist(player.rect.center[0], player.rect.center[1], cherry3.rect.center[0], cherry3.rect.center[1]) < 125:
+                show_cigar2 = True
+                cherry3.rect.x = 0
+                cherry3.rect.y = 0
+        
+        if player.rect.colliderect(key.rect):
+            key_collected = True
+
+
+        if key_collected:
+            if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
+                reached = True
+                if player_alpha > 0:
+                    player_alpha -= 6
+                else:
+                    return True
+                
+        if not key_collected:
+            key.rect.x += screen_offset_x
+            key.rect.y -= screen_offset_y
+            screen.blit(key.image, key.rect)
+            key.rect.x -= screen_offset_x
+            key.rect.y += screen_offset_y
+                
         for block in blocks:
             block.rect.x += screen_offset_x
             block.rect.y -= screen_offset_y
@@ -243,32 +285,32 @@ def play(screen):
             block.rect.x -= screen_offset_x
             block.rect.y += screen_offset_y
 
-        if not key_collected:
-            key.rect.x += screen_offset_x
-            key.rect.y -= screen_offset_y
-            screen.blit(key.image, key.rect)
-            key.rect.x -= screen_offset_x
-            key.rect.y += screen_offset_y
-
-        if key_collected:
-            if player.rect.center[0] == door.rect.center[0] and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
-                reached = True
-                if player_alpha > 0:
-                    player_alpha -= 6
-                else:
-                    return True
-
         door.rect.x += screen_offset_x
         door.rect.y -= screen_offset_y
         screen.blit(door.image, door.rect)
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
 
-        cigar.rect.x += screen_offset_x
-        cigar.rect.y -= screen_offset_y
-        screen.blit(cigar.image, cigar.rect)
-        cigar.rect.x -= screen_offset_x
-        cigar.rect.y += screen_offset_y
+        if show_cigar1:
+            cigar1.rect.x += screen_offset_x
+            cigar1.rect.y -= screen_offset_y
+            screen.blit(cigar1.image, cigar1.rect)
+            cigar1.rect.x -= screen_offset_x
+            cigar1.rect.y += screen_offset_y
+        
+        if show_cigar2:
+            cigar2.rect.x += screen_offset_x
+            cigar2.rect.y -= screen_offset_y
+            screen.blit(cigar2.image, cigar2.rect)
+            cigar2.rect.x -= screen_offset_x
+            cigar2.rect.y += screen_offset_y
+
+        for cherry in cherries:
+            cherry.rect.x += screen_offset_x
+            cherry.rect.y -= screen_offset_y
+            screen.blit(cherry.image, cherry.rect)
+            cherry.rect.x -= screen_offset_x
+            cherry.rect.y += screen_offset_y
 
         player.rect.x += screen_offset_x
         player.rect.y -= screen_offset_y
