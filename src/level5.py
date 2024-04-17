@@ -76,30 +76,40 @@ def create_level(blocks, tilewidth, tileheight):
 
 def play(screen):
     pygame.display.set_caption("Nasha Mukti Kendra")
-    tmxdata = load_pygame("assets/maps/level4.tmx")
+    tmxdata = load_pygame("assets/maps/level5.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     killing_blocks_layer = tmxdata.get_layer_by_name("KillerBlocks")
+    moving_blocks_layer_v = tmxdata.get_layer_by_name("MovingBlocksV")
+    moving_blocks_layer_h = tmxdata.get_layer_by_name("MovingBlocksH")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
     killing_blocks = create_level(killing_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
+    moving_blocks_v = create_level(moving_blocks_layer_v, tmxdata.tilewidth, tmxdata.tileheight)
+    moving_blocks_h = create_level(moving_blocks_layer_h, tmxdata.tilewidth, tmxdata.tileheight)
 
-    blocks2 = pygame.sprite.Group()
-    for block in blocks:
-        blocks2.add(block)
-    for block in killing_blocks:
-        blocks2.add(block)
+    # blocks2 = pygame.sprite.Group()
+    # for block in blocks:
+    #     blocks2.add(block)
+    # for block in killing_blocks:
+    #     blocks2.add(block)
+    for block in moving_blocks_v:
+        # blocks2.add(block)
+        blocks.add(block)
+    for block in moving_blocks_h:
+        # blocks2.add(block)
+        blocks.add(block)
 
     player = Player()
     player.rect.x = 1100
-    player.rect.y = 2000
+    player.rect.y = 2500
     player_alpha = 255
 
 
-    key = Key(2500, 1900)
-    door = Door(4500, 1940)
+    key = Key(2500, 1960)
+    door = Door(4160, 2005)
 
     # print(key.rect.x, key.rect.y)
     intial_cigar = Cigar(2290, 1940)
@@ -122,10 +132,13 @@ def play(screen):
     gravity = 0.25
 
     screen_offset_x = -900
-    screen_offset_y = 2000
+    screen_offset_y = 2300
 
     key_collected = False
     reached = False
+
+    running_block_v = False
+    running_block_h = False
 
     # running_cigar = False
     # dist_cigar_moved = 0
@@ -216,6 +229,25 @@ def play(screen):
         if player.rect.colliderect(key.rect):
             key_collected = True
 
+        for block in moving_blocks_v:
+            if not running_block_v and block.rect.y > 2000 and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top) and (player.rect.left > 2432 and player.rect.right < 2528):
+                # player.rect.bottom = block.rect.top
+                running_block_v = True
+            if running_block_v and block.rect.y > 2050:
+                # if (player.rect.left > 2432 and player.rect.right < 2528):
+                #     player.rect.y -= 2
+                block.rect.y -= 2
+
+        for block in moving_blocks_h:
+            if not running_block_h and player.rect.right > block.rect.left:
+                running_block_h = True
+            if running_block_h and block.rect.x < 3460:
+                block.rect.x += 2
+                if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
+                    player.rect.x += 2
+                    screen_offset_x -= 2
+                
+
         if player.rect.colliderect(intial_cigar.rect):
             intial_cigar.rect.x = 0
             intial_cigar.rect.y = 0
@@ -242,6 +274,13 @@ def play(screen):
             block.rect.y += screen_offset_y
 
         for block in killing_blocks:
+            block.rect.x += screen_offset_x
+            block.rect.y -= screen_offset_y
+            screen.blit(block.image, block.rect)
+            block.rect.x -= screen_offset_x
+            block.rect.y += screen_offset_y
+
+        for block in moving_blocks_v:
             block.rect.x += screen_offset_x
             block.rect.y -= screen_offset_y
             screen.blit(block.image, block.rect)

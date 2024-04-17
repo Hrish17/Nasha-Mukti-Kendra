@@ -88,13 +88,13 @@ def play(screen):
     killing_blocks = create_level(killing_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
     moving_blocks = create_level(moving_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
 
-    blocks2 = pygame.sprite.Group()
-    for block in blocks:
-        blocks2.add(block)
-    for block in killing_blocks:
-        blocks2.add(block)
+    # blocks2 = pygame.sprite.Group()
+    # for block in blocks:
+    #     blocks2.add(block)
+    # for block in killing_blocks:
+    #     blocks2.add(block)
     for block in moving_blocks:
-        blocks2.add(block)
+        # blocks2.add(block)
         blocks.add(block)
 
     player = Player()
