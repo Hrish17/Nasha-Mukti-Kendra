@@ -102,7 +102,7 @@ def play(screen):
     door = Door(4500, 1940)
 
     # print(key.rect.x, key.rect.y)
-    intial_cigar = Cigar(2300, 1940)
+    intial_cigar = Cigar(2290, 1940)
     cigar1 = Cigar(2450, 1700)
     cigar2 = Cigar(2550, 1700)
     cigar3 = Cigar(2650, 1700)
@@ -219,11 +219,11 @@ def play(screen):
         if player.rect.colliderect(intial_cigar.rect):
             intial_cigar.rect.x = 0
             intial_cigar.rect.y = 0
-            # move_speed -= 0.2
+            move_speed -= 0.2
 
         for cigar in cigars:
             if player.rect.colliderect(cigar.rect):
-                # move_speed -= 0.2
+                move_speed -= 0.2
                 cigar.rect.x = 0
                 cigar.rect.y = 0
             if (cigar.rect.x - player.rect.x) < 200:
