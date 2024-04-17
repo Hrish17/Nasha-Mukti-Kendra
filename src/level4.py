@@ -219,11 +219,11 @@ def play(screen):
         if player.rect.colliderect(intial_cigar.rect):
             intial_cigar.rect.x = 0
             intial_cigar.rect.y = 0
-            move_speed -= 0.2
+            # move_speed -= 0.2
 
         for cigar in cigars:
             if player.rect.colliderect(cigar.rect):
-                move_speed -= 0.2
+                # move_speed -= 0.2
                 cigar.rect.x = 0
                 cigar.rect.y = 0
             if (cigar.rect.x - player.rect.x) < 200:
