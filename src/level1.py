@@ -81,7 +81,7 @@ def create_level(blocks, tilewidth, tileheight):
     return res
 
 def play(screen):
-    pygame.display.set_caption("AWARE US")
+    pygame.display.set_caption("NASHA MUKTI KENDRA")
 
     screen_number = 1
     begin_button = Button(screen.get_width()/2 - 75, 500, 150, 50, (0, 0, 0), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255))

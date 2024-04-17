@@ -75,7 +75,7 @@ def create_level(blocks, tilewidth, tileheight):
     return res
 
 def play(screen):
-    pygame.display.set_caption("Nasha Mukti Kendra")
+    pygame.display.set_caption("NASHA MUKTI KENDRA")
     tmxdata = load_pygame("assets/maps/level4.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")

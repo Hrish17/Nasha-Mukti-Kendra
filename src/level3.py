@@ -78,7 +78,7 @@ def dist(x1,y1,x2,y2):
     return ((x1-x2)**2 + (y1-y2)**2)**0.5
 
 def play(screen):
-    pygame.display.set_caption("AWARE US")
+    pygame.display.set_caption("NASHA MUKTI KENDRA")
     tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
