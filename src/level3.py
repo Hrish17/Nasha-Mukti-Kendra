@@ -82,7 +82,7 @@ def play(screen):
     tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
-    blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
+    blocks1_layer = tmxdata.get_layer_by_name("KillerBlocks")
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255))
 
