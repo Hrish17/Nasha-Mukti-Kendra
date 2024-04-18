@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
+import player as character
 
 class Text:
     def __init__(self, x, y, text, font, color):
@@ -14,12 +15,6 @@ class Text:
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super(Player, self).__init__()
-        self.surf = pygame.Surface((28, 28))
-        self.surf.fill((0, 0, 0))
-        self.rect = self.surf.get_rect()
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image):
@@ -121,10 +116,8 @@ def play(screen):
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
 
-    player = Player()
-    player.rect.x = 1100
-    player.rect.y = 2532
-    player_alpha = 255
+    player = character.Player()
+    all_sprites = pygame.sprite.Group(player)
 
     key = Key(1700, 2520)
     door = Door(2780, 2150)
@@ -140,6 +133,7 @@ def play(screen):
 
     moving_left = False
     moving_right = False
+    right = True
 
     move_speed = 4
     jumping = True
@@ -196,9 +190,11 @@ def play(screen):
                     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         moving_left = True
                         moving_right = False
+                        right = False
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         moving_right = True
                         moving_left = False
+                        right = True
                     if event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
                         if not jumping:
                             jump_speed = og_jump_speed
@@ -208,6 +204,8 @@ def play(screen):
                         moving_left = False
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         moving_right = False
+
+            all_sprites.update()
             
 
             if jumping and not reached:
@@ -257,6 +255,29 @@ def play(screen):
                 player.rect.x -= move_speed
                 screen_offset_x += move_speed
 
+            keys_pressed = pygame.key.get_pressed()
+            if not gameover:
+                if not jumping:
+                    if not keys_pressed[pygame.K_LEFT] and not keys_pressed[pygame.K_RIGHT] and not keys_pressed[pygame.K_a] and not keys_pressed[pygame.K_d]:
+                        if right:
+                            player.action = "idle_right"
+                        else:
+                            player.action = "idle_left"
+                    elif keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
+                        player.action = "run_left"
+                    elif keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
+                        player.action = "run_right"
+                else: 
+                    if right:
+                        player.action = "jump_right"
+                    else:
+                        player.action = "jump_left"
+            else:
+                if right:
+                    player.action = "idle_right"
+                else:
+                    player.action = "idle_left"
+
 
             if player.rect.y < screen.get_height() // 2:
                 screen_offset_y = -100
@@ -282,6 +303,8 @@ def play(screen):
                 if player.rect.colliderect(cigar.rect):
                     gameover = True
                     
+            if player.rect.y > 2800:
+                gameover = True
 
             screen.fill((0, 0, 0))
 
@@ -309,8 +332,9 @@ def play(screen):
             if key_collected:
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
-                    if player_alpha > 0:
-                        player_alpha -= 6
+                    if player.alpha > 0:
+                        player.alpha -= 5
+                        player.image.set_alpha(player.alpha)
                     else:
                         return 1
                     
@@ -358,8 +382,7 @@ def play(screen):
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
-            player.surf.set_alpha(player_alpha)
-            screen.blit(player.surf, player.rect)
+            all_sprites.draw(screen)
             player.rect.x -= screen_offset_x
             player.rect.y += screen_offset_y
             
