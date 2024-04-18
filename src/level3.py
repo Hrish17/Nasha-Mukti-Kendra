@@ -3,6 +3,23 @@ from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 import player as character
 
+class Image:
+    def __init__(self, screen, x, y, width, height, image_path):
+        self.screen = screen
+        self.image = None
+        self.rect = None
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.rect = self.image.get_rect()        
+
+    def draw(self):
+        self.rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, self.rect)
+
 class Text:
     def __init__(self, x, y, text, font, color):
         self.text = text
@@ -108,6 +125,10 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
+    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, 'assets/images/heart.png')
+    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, 'assets/images/heart.png')
+    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, 'assets/images/heart.png')
+    hearts = [heart1, heart2, heart3]
     tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
@@ -274,7 +295,9 @@ def play(screen):
 
             for cigar in cigars:
                 if player.rect.colliderect(cigar.rect):
-                    gameover = True
+                    player.health -= 1
+                    cigar.rect.x = 0
+                    cigar.rect.y = 0
                     
             if player.rect.y > 2800:
                 gameover = True
@@ -361,6 +384,8 @@ def play(screen):
             
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
+            for i in range(0, player.health):
+                hearts[i].draw()
 
             if gameover:
                 for event in pygame.event.get():

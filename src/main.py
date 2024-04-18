@@ -61,13 +61,13 @@ def start_level(screen, level_number):
     next = level.play(screen)
     if next == 1:
         level_number += 1
-        start_level(screen, level_number)
+        level_number = start_level(screen, level_number)
     elif next == 0:
-        start_level(screen, level_number)
+        level_number = start_level(screen, level_number)
     return level_number
 
 def main():
-    levels_unlocked = 1
+    levels_unlocked = 6
     total_levels = 10
     pygame.init()
     screen_width = 1080
