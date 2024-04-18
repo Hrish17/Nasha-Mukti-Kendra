@@ -82,11 +82,11 @@ class Button:
         return self.rect.collidepoint(pos)
     
 class ButtonImage:
-    def __init__(self, image_path, position, width, height):
+    def __init__(self, image_path, x, y, width, height):
         self.image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = self.image.get_rect()
-        self.rect.topleft = position
+        self.rect = pygame.Rect()
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -111,6 +111,10 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
+    heart1 = ButtonImage(screen.get_width()/2 + 200, 10, 32, 32)
+    heart2 = Image(screen.get_width()/2 + 250, 10, 32, 32)
+    heart3 = Image(screen.get_width()/2 + 300, 10, 32, 32)
+    hearts = [heart1, heart2, heart3]
     tmxdata = load_pygame("./assets/maps/level1.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
@@ -118,8 +122,6 @@ def play(screen):
 
     player = character.Player()
     all_sprites = pygame.sprite.Group(player)
-
-
 
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (43, 44, 48))
 
@@ -331,6 +333,8 @@ def play(screen):
             
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
+            for i in range(0, player.health):
+                hearts[i].blit()
 
             if gameover:
                 for event in pygame.event.get():

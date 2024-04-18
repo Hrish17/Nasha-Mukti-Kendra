@@ -4,8 +4,16 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         images_path = 'assets/images/character/'
+<<<<<<< HEAD
         new_width = 40
         new_height = 85
+=======
+        new_width = 28
+        new_height = 70
+        # self.idle_images = [pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha() for i in range(1, 7)]
+        # self.run_images = [pygame.image.load(images_path + 'Run' + str(i) + '.png').convert_alpha() for i in range(1, 9)]
+        # self.jump_images = [pygame.image.load(images_path + 'Jump' + str(i) + '.png').convert_alpha() for i in range(1, 11)]
+>>>>>>> 2f8b34d45cd308b22b1e910699ea3b9450f53fb2
         self.idle_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 7)]
         self.run_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Run' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 9)]
         self.jump_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Jump' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 11)]
@@ -22,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 2500
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.health = 3
 
         self.action = "idle_right"
 
