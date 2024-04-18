@@ -177,8 +177,6 @@ def main():
                                     l_number = start_level(screen, i)
                                     if l_number > levels_unlocked:
                                         levels_unlocked = l_number
-                                    # if level_completed and i == level_number:
-                                    #     levels_completed += 1
-                                    #     level_number += 1
+                                        
 
 main()
