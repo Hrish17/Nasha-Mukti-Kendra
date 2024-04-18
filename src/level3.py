@@ -415,7 +415,7 @@ def play(screen):
                         if nextlevel_main_menu_button.is_clicked(event.pos):
                             return -1
                         elif nextlevel_retry_button.is_clicked(event.pos):
-                            return 0
+                            return 2
                         elif nextlevel_button.is_clicked(event.pos):
                             return 1
                 screen.blit(background.surf, background.rect)

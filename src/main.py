@@ -59,6 +59,8 @@ class Image(pygame.sprite.Sprite):
 def start_level(screen, level_number):
     level = __import__(f"level{level_number}")
     next = level.play(screen)
+    if next == 2:
+        level_number = max(level_number + 1, start_level(screen, level_number))
     if next == 1:
         level_number += 1
         level_number = start_level(screen, level_number)
