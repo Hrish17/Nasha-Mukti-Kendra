@@ -57,7 +57,7 @@ class Image(pygame.sprite.Sprite):
         self.height = height
 
 def start_level(screen, level_number):
-    level = __import__(f"level{6}")
+    level = __import__(f"level{level_number}")
     next = level.play(screen)
     if next == 1:
         level_number += 1
@@ -74,9 +74,9 @@ def main():
     screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("NASHA MUKTI KENDRA")
-    logo = pygame.image.load('assets/images/logo.png')
+    logo = pygame.image.load('./assets/images/logo.png')
     logo = Image(screen_width/2 - 250, 40, logo, 500, 400)
-    logo_beer = pygame.image.load('assets/images/logo_beer.png')
+    logo_beer = pygame.image.load('./assets/images/logo_beer.png')
     logo_beer = Image(screen_width/2 + 70, 380, logo_beer, 50, 50)
 
     button_font = pygame.font.Font(None, 50)
@@ -85,7 +85,7 @@ def main():
     quit_button = Button(screen_width/2 - 60, 510, 120, 50, (43, 44, 48), 'QUIT', button_font, (255, 255, 255), (100, 100, 100))
 
     controls = Text(screen.get_width()/2, 100, 'CONTROLS', pygame.font.Font(None, 70), (255, 255, 255))
-    controls_image = Image(screen.get_width()/2 - 400, 190, pygame.image.load("assets/images/controls.png"), 800, 300)
+    controls_image = Image(screen.get_width()/2 - 400, 190, pygame.image.load("./assets/images/controls.png"), 800, 300)
 
     font_heading = pygame.font.Font(None, 60)
     levels_heading = Heading(screen_width/2, 160, 'LEVELS', font_heading, (255, 255, 255))

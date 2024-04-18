@@ -135,7 +135,9 @@ def play(screen):
     # screen number = 1
     screen_number = 1
     level4 = Text(screen.get_width()/2, 100, 'LEVEL 6', pygame.font.Font(None, 80), (255, 255, 255))
-    rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
+    text1 = Text(screen.get_width()/2, 250, 'Fruits increase your health', pygame.font.Font(None, 50), (255, 255, 255))
+    text2 = Text(screen.get_width()/2, 300, 'Alcohol and smoking decreases your health', pygame.font.Font(None, 50), (255, 0, 0))
+    text3 = Text(screen.get_width()/2, 350, 'Overdose of highly addictive drugs like COCAINE can be lethal', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
@@ -210,7 +212,9 @@ def play(screen):
                         screen_number = 2
             screen.fill((43, 44, 48))
             level4.draw(screen)
-            rule.draw(screen)
+            text1.draw(screen)
+            text2.draw(screen)
+            text3.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
@@ -321,38 +325,38 @@ def play(screen):
                     cokes_accumulator += 4.7
                     cokes[0].rect.x += 9*(cokes_accumulator//9)
                     cokes_accumulator = cokes_accumulator%9
-                    if pygame.sprite.collide_mask(player, cokes[0]):
-                        player.health -= 2
                 else:
                     cokes_accumulator = 0
+                if pygame.sprite.collide_mask(player, cokes[0]):
+                    gameover = True
                 if player.rect.x <= 2530 and player.rect.y <= 2300:
                     cokes_shown = 2
             elif cokes_shown == 2:
                 if cokes[1].rect.x > 1200:
                     cokes[1].rect.x -= 5.6
-                    if pygame.sprite.collide_mask(player, cokes[1]):
-                        player.health -= 2
+                if pygame.sprite.collide_mask(player, cokes[1]):
+                    gameover = True
                 if player.rect.x >= 1756 and player.rect.y <= 2100:
                     cokes_shown = 3
             elif cokes_shown == 3:
                 if cokes[2].rect.x < 3250:
                     cokes[2].rect.x += 5.4
-                    if pygame.sprite.collide_mask(player, cokes[2]):
-                        player.health -= 2
+                if pygame.sprite.collide_mask(player, cokes[2]):
+                    gameover = True
                 if player.rect.x <= 2600 and player.rect.y <= 1800:
                     cokes_shown = 4
             elif cokes_shown == 4:
                 if cokes[3].rect.x > 1200:
                     cokes[3].rect.x -= 6
-                    if pygame.sprite.collide_mask(player, cokes[3]):
-                        player.health -= 2
+                if pygame.sprite.collide_mask(player, cokes[3]):
+                    gameover = True
                 if player.rect.x >= 1900 and player.rect.y <= 1500:
                     cokes_shown = 5
             elif cokes_shown == 5:
                 if cokes[4].rect.x < 3000:
                     cokes[4].rect.x += 5.5
-                    if pygame.sprite.collide_mask(player, cokes[4]):
-                        player.health -= 2
+                if pygame.sprite.collide_mask(player, cokes[4]):
+                    gameover = True
 
             if player.rect.y > 2800:
                 gameover = True

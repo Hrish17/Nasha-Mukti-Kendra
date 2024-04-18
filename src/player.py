@@ -3,7 +3,7 @@ import pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        images_path = 'assets/images/character/'
+        images_path = './assets/images/character/'
         new_width = 28
         new_height = 70
         self.idle_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 7)]

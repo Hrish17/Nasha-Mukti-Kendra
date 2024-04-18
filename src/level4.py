@@ -195,6 +195,7 @@ def play(screen):
     main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
+    
     nextlevel_text = Text(screen.get_width()/2, 200, 'YOU WON', pygame.font.Font(None, 80), (0, 255, 0))
     nextlevel_button = Button(screen.get_width()/2 + 125, 380, 150, 50, (70, 70, 70), 'Next Level', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     nextlevel_main_menu_button = Button(screen.get_width()/2 - 75, 380, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
