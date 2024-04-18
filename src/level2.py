@@ -182,90 +182,55 @@ def play(screen):
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
         elif screen_number == 2:
+            dx = 0
+            dy = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return -1
+                    running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if quit_button.is_clicked(event.pos):
                         return -1
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        moving_left = True
-                        moving_right = False
-                        right = False
-                        # player.action = "run_left"
-                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        moving_right = True
-                        moving_left = False
-                        right = True
-                        # player.action = "run_right"
-                    if event.key == pygame.K_UP or event.key == pygame.K_SPACE or event.key == pygame.K_w:
-                        if not jumping:
-                            jump_speed = og_jump_speed
-                            jumping = True
-                        # if right:    
-                        #     player.action = "jump_right"
-                        # else:
-                        #     player.action = "jump_left"
-                elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        moving_left = False
-                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        moving_right = False
 
-            all_sprites.update()
+            keys = pygame.key.get_pressed()
+            if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and not jumping:
+                jump_speed = og_jump_speed
+                jumping = True
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                dx -= move_speed
+                right = False
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                dx += move_speed
+                right = True
             
+            all_sprites.update()
 
-            if jumping and not reached:
-                player.rect.y -= jump_speed
-                # screen_offset_y += jump_speed
+            if not reached:
                 jump_speed -= gravity
                 if jump_speed <= -max_fall_speed:
                     jump_speed = -max_fall_speed
-                if not jumping:
-                    jump_speed = 0
-
-            on_a_block = False
+            dy -= jump_speed
 
             for block in blocks2:
-                if player.rect.colliderect(block.rect):
-                    if jumping and player.rect.top < block.rect.top and player.rect.bottom > block.rect.top:
-                        player.rect.bottom = block.rect.top
+                if block.rect.colliderect(player.rect.x + dx, player.rect.y, player.width, player.height):
+                    dx = 0
+                if block.rect.colliderect(player.rect.x, player.rect.y + dy, player.width, player.height):
+                    if jump_speed > 0:
+                        dy = block.rect.bottom - player.rect.top
+                        jump_speed = 0
+                    elif jump_speed <= 0:
+                        dy = block.rect.top - player.rect.bottom
                         jump_speed = 0
                         jumping = False
-                    elif jumping and player.rect.top < block.rect.bottom and player.rect.bottom > block.rect.bottom:
-                        player.rect.top = block.rect.bottom
-                        jumping = True
-                        jump_speed = 0
-                    elif player.rect.right >= block.rect.left and player.rect.left < block.rect.left:
-                        moving_right = False
-                        player.rect.right = block.rect.left
-                        screen_offset_x += 4
-                        jumping = True
-                        jump_speed = 0
-                    elif player.rect.left <= block.rect.right and player.rect.right > block.rect.right:
-                        moving_left = False
-                        player.rect.left = block.rect.right
-                        screen_offset_x -= 4
-                        jumping = True
-                        jump_speed = 0
-                        
-                if player.rect.bottom == block.rect.top and player.rect.left < block.rect.right and player.rect.right > block.rect.left:
-                    on_a_block = True
-            
-            if not on_a_block:
-                jumping = True
 
-            if moving_right and not reached and not gameover:
-                player.rect.x += move_speed
-                screen_offset_x -= move_speed
-            if moving_left and not reached and not gameover:
-                player.rect.x -= move_speed
-                screen_offset_x += move_speed
+            if not reached and not gameover:
+                player.rect.x += dx
+                screen_offset_x -= dx
+                dy = dy//1
+                player.rect.y += dy
 
             keys_pressed = pygame.key.get_pressed()
-            if not gameover:
-                if not jumping:
+            if not gameover and not reached:
+                if dy == 0:
                     if not keys_pressed[pygame.K_LEFT] and not keys_pressed[pygame.K_RIGHT] and not keys_pressed[pygame.K_a] and not keys_pressed[pygame.K_d]:
                         if right:
                             player.action = "idle_right"
@@ -275,7 +240,7 @@ def play(screen):
                         player.action = "run_left"
                     elif keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
                         player.action = "run_right"
-                else: 
+                else:
                     if right:
                         player.action = "jump_right"
                     else:

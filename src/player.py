@@ -23,6 +23,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 1100
         self.rect.y = 2500
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
         self.action = "idle_right"
 
