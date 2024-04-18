@@ -3,6 +3,23 @@ from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 import player as character
 
+class Image:
+    def __init__(self, screen, x, y, width, height, image_path):
+        self.screen = screen
+        self.image = None
+        self.rect = None
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.rect = self.image.get_rect()        
+
+    def draw(self):
+        self.rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, self.rect)
+
 class Text:
     def __init__(self, x, y, text, font, color):
         self.text = text
@@ -108,6 +125,10 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
+    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, 'assets/images/heart.png')
+    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, 'assets/images/heart.png')
+    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, 'assets/images/heart.png')
+    hearts = [heart1, heart2, heart3]
     tmxdata = load_pygame("assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
@@ -118,6 +139,7 @@ def play(screen):
 
     player = character.Player()
     all_sprites = pygame.sprite.Group(player)
+    player.health = 2
 
     key = Key(1700, 2520)
     door = Door(2780, 2150)
@@ -160,6 +182,11 @@ def play(screen):
     main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
+    nextlevel_text = Text(screen.get_width()/2, 200, 'YOU WON', pygame.font.Font(None, 80), (0, 255, 0))
+    nextlevel_button = Button(screen.get_width()/2 + 125, 380, 150, 50, (70, 70, 70), 'Next Level', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_main_menu_button = Button(screen.get_width()/2 - 75, 380, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_retry_button = Button(screen.get_width()/2 - 275, 380, 150, 50, (70, 70, 70), 'Play Again', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel = False
 
     running = True
     clock = pygame.time.Clock()
@@ -274,7 +301,9 @@ def play(screen):
 
             for cigar in cigars:
                 if player.rect.colliderect(cigar.rect):
-                    gameover = True
+                    player.health -= 1
+                    cigar.rect.x = 0
+                    cigar.rect.y = 0
                     
             if player.rect.y > 2800:
                 gameover = True
@@ -309,7 +338,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        nextlevel = True
                     
             if not key_collected:
                 key.rect.x += screen_offset_x
@@ -361,6 +390,10 @@ def play(screen):
             
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
+            if player.health <= 0:
+                gameover = True
+            for i in range(0, player.health):
+                hearts[i].draw()
 
             if gameover:
                 for event in pygame.event.get():
@@ -373,5 +406,22 @@ def play(screen):
                 gameover_text.draw(screen)
                 main_menu_button.draw(screen, mouse_pos, 1)
                 retry_button.draw(screen, mouse_pos, 1)
+
+            if nextlevel:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if nextlevel_main_menu_button.is_clicked(event.pos):
+                            return -1
+                        elif nextlevel_retry_button.is_clicked(event.pos):
+                            return 0
+                        elif nextlevel_button.is_clicked(event.pos):
+                            return 1
+                screen.blit(background.surf, background.rect)
+                nextlevel_text.draw(screen)
+                nextlevel_button.draw(screen, mouse_pos, 1)
+                nextlevel_main_menu_button.draw(screen, mouse_pos, 1)
+                nextlevel_retry_button.draw(screen, mouse_pos, 1)
 
             pygame.display.flip()

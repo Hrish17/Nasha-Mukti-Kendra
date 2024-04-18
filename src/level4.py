@@ -3,20 +3,22 @@ from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 import player as character
 
-# class Player(pygame.sprite.Sprite):
-#     def __init__(self):
-#         super(Player, self).__init__()
-#         self.surf = pygame.Surface((28, 40))
-#         self.surf.fill((0, 0, 0))
-#         self.rect = self.surf.get_rect()
-
-class Image(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, width, height):
-        super(Image, self).__init__()
-        self.image = pygame.transform.scale(image, (width, height))
-        self.rect = self.image.get_rect(topleft = (x, y))
+class Image:
+    def __init__(self, screen, x, y, width, height, image_path):
+        self.screen = screen
+        self.image = None
+        self.rect = None
+        self.x = x
+        self.y = y
         self.width = width
         self.height = height
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.rect = self.image.get_rect()        
+
+    def draw(self):
+        self.rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, self.rect)
         
 class Text:
     def __init__(self, x, y, text, font, color):
@@ -66,10 +68,17 @@ class Door(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(center = (x, y))
 
-class Cigar():
+class Alcohol():
     def __init__(self, x, y):
-        super(Cigar, self).__init__()
+        super(Alcohol, self).__init__()
         original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (35, 35))
+        self.rect = self.image.get_rect(topleft=(x,y))
+
+class Water():
+    def __init__(self, x, y):
+        super(Water, self).__init__()
+        original_image = pygame.image.load("assets/images/water.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
@@ -119,6 +128,10 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
+    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, 'assets/images/heart.png')
+    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, 'assets/images/heart.png')
+    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, 'assets/images/heart.png')
+    hearts = [heart1, heart2, heart3]
     tmxdata = load_pygame("assets/maps/level4.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
@@ -139,14 +152,20 @@ def play(screen):
 
     lowest_camera_y = player.rect.y
 
-    key = Key(2500, 1900)
+    key = Key(2450, 1860)
     door = Door(4500, 1940)
 
-    intial_cigar = Cigar(2290, 1940)
-    cigar1 = Cigar(2450, 1700)
-    cigar2 = Cigar(2550, 1700)
-    cigar3 = Cigar(2650, 1700)
-    cigars = [cigar1, cigar2, cigar3]
+    alcohol1 = Alcohol(2290, 1940)
+    alcohol2 = Alcohol(2450, 1940)
+    alcohol3 = Alcohol(2550, 1940)
+    alcohol4 = Alcohol(2650, 1940)
+    alcohols = [alcohol1, alcohol2, alcohol3, alcohol4]
+    moving_alcohol = [alcohol3]
+    water1 = Water(2550, 1860)
+    water2 = Water(2650, 1860)
+    moving_water = [water1]
+    waters = [water1, water2]
+    dist_water_moved = [0, 0]
 
     moving_left = False
     moving_right = False
@@ -176,6 +195,11 @@ def play(screen):
     main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
+    nextlevel_text = Text(screen.get_width()/2, 200, 'YOU WON', pygame.font.Font(None, 80), (0, 255, 0))
+    nextlevel_button = Button(screen.get_width()/2 + 125, 380, 150, 50, (70, 70, 70), 'Next Level', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_main_menu_button = Button(screen.get_width()/2 - 75, 380, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_retry_button = Button(screen.get_width()/2 - 275, 380, 150, 50, (70, 70, 70), 'Play Again', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel = False
 
     running = True
     clock = pygame.time.Clock()
@@ -222,6 +246,14 @@ def play(screen):
                 if jump_speed <= -max_fall_speed:
                     jump_speed = -max_fall_speed
             dy -= jump_speed
+
+            for block in moving_blocks:
+                if not running_block and player.rect.left > block.rect.right:
+                    running_block = True
+                if running_block and block.rect.x < 4000:
+                    block.rect.x += 2
+                    if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
+                        dx += 2
 
             for block in moving_blocks:
                 if not running_block and player.rect.left > block.rect.right:
@@ -285,21 +317,29 @@ def play(screen):
 
             for block in killing_blocks:
                 if player.rect.colliderect(block.rect):
-                    return False
+                    gameover = True
 
-            if player.rect.colliderect(intial_cigar.rect):
-                intial_cigar.rect.x = 0
-                intial_cigar.rect.y = 0
-                move_speed -= 0.2
-
-            for cigar in cigars:
-                if player.rect.colliderect(cigar.rect):
+            for alcohol in alcohols:
+                if player.rect.colliderect(alcohol.rect):
+                    player.health -= 1
                     move_speed -= 0.2
-                    cigar.rect.x = 0
-                    cigar.rect.y = 0
-                if (cigar.rect.x - player.rect.x) < 200:
-                    if cigar.rect.y < 1940:
-                        cigar.rect.y += 4
+                    alcohol.rect.x = 0
+                    alcohol.rect.y = 0
+            for alcohol in moving_alcohol:
+                if (alcohol.rect.x - player.rect.x) < 50:
+                    if alcohol.rect.y > 1860:
+                        alcohol.rect.y -= 16
+            for water in waters:
+                if player.rect.colliderect(water.rect):
+                    player.health += 1
+                    move_speed += 0.1
+                    water.rect.x = 0
+                    water.rect.y = 0
+            for i in range(1):
+                water = moving_water[i]
+                if (water.rect.x - player.rect.x) < 50:
+                    if water.rect.y < 1940:
+                        water.rect.y += 16
 
             if player.rect.y > 2800:
                 gameover = True
@@ -337,7 +377,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        nextlevel = True
 
 
             door.rect.x += screen_offset_x
@@ -346,17 +386,18 @@ def play(screen):
             door.rect.x -= screen_offset_x
             door.rect.y += screen_offset_y
 
-            intial_cigar.rect.x += screen_offset_x
-            intial_cigar.rect.y -= screen_offset_y
-            screen.blit(intial_cigar.image, intial_cigar.rect)
-            intial_cigar.rect.x -= screen_offset_x
-            intial_cigar.rect.y += screen_offset_y
-            for cigar in cigars:
-                cigar.rect.x += screen_offset_x
-                cigar.rect.y -= screen_offset_y
-                screen.blit(cigar.image, cigar.rect)
-                cigar.rect.x -= screen_offset_x
-                cigar.rect.y += screen_offset_y
+            for alcohol in alcohols:
+                alcohol.rect.x += screen_offset_x
+                alcohol.rect.y -= screen_offset_y
+                screen.blit(alcohol.image, alcohol.rect)
+                alcohol.rect.x -= screen_offset_x
+                alcohol.rect.y += screen_offset_y
+            for water in waters:
+                water.rect.x += screen_offset_x
+                water.rect.y -= screen_offset_y
+                screen.blit(water.image, water.rect)
+                water.rect.x -= screen_offset_x
+                water.rect.y += screen_offset_y
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
@@ -366,6 +407,10 @@ def play(screen):
         
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
+            if (player.health <= 0):
+                gameover = True
+            for i in range(0, player.health):
+                hearts[i].draw()
 
             if gameover:
                 for event in pygame.event.get():
@@ -378,9 +423,26 @@ def play(screen):
                 gameover_text.draw(screen)
                 main_menu_button.draw(screen, mouse_pos, 1)
                 retry_button.draw(screen, mouse_pos, 1)
+            
+            if nextlevel:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if nextlevel_main_menu_button.is_clicked(event.pos):
+                            return -1
+                        elif nextlevel_retry_button.is_clicked(event.pos):
+                            return 0
+                        elif nextlevel_button.is_clicked(event.pos):
+                            return 1
+                screen.blit(background.surf, background.rect)
+                nextlevel_text.draw(screen)
+                nextlevel_button.draw(screen, mouse_pos, 1)
+                nextlevel_main_menu_button.draw(screen, mouse_pos, 1)
+                nextlevel_retry_button.draw(screen, mouse_pos, 1)
 
             pygame.display.flip()
 
 
 
-# cigar to alcohol
+# alcohol to alcohol
