@@ -357,7 +357,9 @@ def play(screen):
                     if event.type == pygame.quit:
                         return -1
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        if main_menu_button.is_clicked(event.pos):
+                        if quit_button.is_clicked(event.pos):
+                            return -1
+                        elif main_menu_button.is_clicked(event.pos):
                             return -1
                         elif retry_button.is_clicked(event.pos):
                             return 0
