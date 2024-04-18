@@ -31,6 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.animation_counter = 0
 
         self.image.set_alpha(self.alpha)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
         if self.action == "idle_right":

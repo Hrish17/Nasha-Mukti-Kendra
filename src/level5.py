@@ -3,13 +3,6 @@ from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 import player as character
 
-# class Player(pygame.sprite.Sprite):
-#     def __init__(self):
-#         super(Player, self).__init__()
-#         self.surf = pygame.Surface((28, 40))
-#         self.surf.fill((0, 0, 0))
-#         self.rect = self.surf.get_rect()
-
 class Image(pygame.sprite.Sprite):
     def __init__(self, x, y, image, width, height):
         super(Image, self).__init__()
@@ -121,7 +114,7 @@ def play(screen):
 
     # screen number = 1
     screen_number = 1
-    level4 = Text(screen.get_width()/2, 100, 'LEVEL 4', pygame.font.Font(None, 80), (255, 255, 255))
+    level4 = Text(screen.get_width()/2, 100, 'LEVEL 5', pygame.font.Font(None, 80), (255, 255, 255))
     rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 

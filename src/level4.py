@@ -180,6 +180,7 @@ def play(screen):
     running = True
     clock = pygame.time.Clock()
     while running:
+        clock.tick(60)
         if screen_number == 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -221,6 +222,14 @@ def play(screen):
                 if jump_speed <= -max_fall_speed:
                     jump_speed = -max_fall_speed
             dy -= jump_speed
+
+            for block in moving_blocks:
+                if not running_block and player.rect.left > block.rect.right:
+                    running_block = True
+                if running_block and block.rect.x < 4000:
+                    block.rect.x += 2
+                    if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
+                        dx += 2
 
             for block in blocks:
                 if block.rect.colliderect(player.rect.x + dx, player.rect.y, player.width, player.height):
@@ -282,15 +291,6 @@ def play(screen):
                 intial_cigar.rect.x = 0
                 intial_cigar.rect.y = 0
                 move_speed -= 0.2
-
-            for block in moving_blocks:
-                if not running_block and player.rect.left > block.rect.right:
-                    running_block = True
-                if running_block and block.rect.x < 4000:
-                    block.rect.x += 2
-                    if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
-                        player.rect.x += 2
-                        screen_offset_x -= 2
 
             for cigar in cigars:
                 if player.rect.colliderect(cigar.rect):

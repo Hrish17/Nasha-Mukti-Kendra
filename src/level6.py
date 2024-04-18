@@ -3,13 +3,6 @@ from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 import player as character
 
-# class Player(pygame.sprite.Sprite):
-#     def __init__(self):
-#         super(Player, self).__init__()
-#         self.surf = pygame.Surface((28, 40))
-#         self.surf.fill((0, 0, 0))
-#         self.rect = self.surf.get_rect()
-
 class Image(pygame.sprite.Sprite):
     def __init__(self, x, y, image, width, height):
         super(Image, self).__init__()
@@ -69,23 +62,34 @@ class Door(pygame.sprite.Sprite):
 class Cigar():
     def __init__(self, x, y):
         super(Cigar, self).__init__()
-        original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (35, 35))
+        original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (40, 40))
         self.rect = self.image.get_rect(topleft=(x,y))
+        self.mask = pygame.mask.from_surface(self.image)
 
-class Lemon():
+class Cherry(pygame.sprite.Sprite):
     def __init__(self, x, y):
-        super(Lemon, self).__init__()
-        original_image = pygame.image.load("assets/images/lemon.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (35, 35))
-        self.rect = self.image.get_rect(topleft=(x,y))
+        super(Cherry, self).__init__()
+        original_image = pygame.image.load("assets/images/cherries.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (50, 50))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Alcohol():
     def __init__(self, x, y):
         super(Alcohol, self).__init__()
         original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (35, 35))
+        self.image = pygame.transform.scale(original_image, (40, 40))
         self.rect = self.image.get_rect(topleft=(x,y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+class Cocaine():
+    def __init__(self, x, y):
+        super(Cocaine, self).__init__()
+        original_image = pygame.image.load("assets/images/cocaine.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (170, 150))
+        self.rect = self.image.get_rect(topleft=(x,y))
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, action=None):
@@ -121,17 +125,14 @@ def play(screen):
 
     # screen number = 1
     screen_number = 1
-    level4 = Text(screen.get_width()/2, 100, 'LEVEL 4', pygame.font.Font(None, 80), (255, 255, 255))
+    level4 = Text(screen.get_width()/2, 100, 'LEVEL 6', pygame.font.Font(None, 80), (255, 255, 255))
     rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
-    tmxdata = load_pygame("assets/maps/level5.tmx")
+    tmxdata = load_pygame("assets/maps/level6.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
-    killing_blocks_layer = tmxdata.get_layer_by_name("KillerBlocks")
-    moving_blocks_layer_v = tmxdata.get_layer_by_name("MovingBlocksV")
-    moving_blocks_layer_h = tmxdata.get_layer_by_name("MovingBlocksH")
 
     player = character.Player()
     all_sprites = pygame.sprite.Group(player)
@@ -139,25 +140,23 @@ def play(screen):
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (43, 44, 48))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    killing_blocks = create_level(killing_blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
-    moving_blocks_v = create_level(moving_blocks_layer_v, tmxdata.tilewidth, tmxdata.tileheight)
-    moving_blocks_h = create_level(moving_blocks_layer_h, tmxdata.tilewidth, tmxdata.tileheight)
-
-    for block in moving_blocks_v:
-        blocks.add(block)
-    for block in moving_blocks_h:
-        blocks.add(block)
 
     lowest_camera_y = player.rect.y
 
-    key = Key(2500, 1960)
-    door = Door(4160, 2005)
+    key = Key(2450, 1960)
+    door = Door(3500, 1553)
 
-    lemon = Lemon(2080, 2400)
-    alcohol = Alcohol(1740, 2464)
+    alcohols = [Alcohol(1700, 2520), Alcohol(1900, 2520), Cigar(2100, 2520), Alcohol(2400, 2520), 
+                Alcohol(1500, 2296), Cigar(1800, 2296), Cigar(2200, 2296),Alcohol(2500,2296), Cigar(2600, 2296),
+                Alcohol(1700, 2039), Alcohol(2000, 2039), Alcohol(2300, 2039),
+                Alcohol(1900, 1783), Cigar(2200, 1783), Alcohol(2000, 1783),
+                Cigar(2300, 1560), Alcohol(2100, 1560), Alcohol(2400, 1560)]
+    
+    cherries = [Cherry(3600, 2350), Cherry(3520, 1750)]
+    cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
+    cokes_shown = 0
+    cokes_accumulator = 0
 
-    moving_left = False
-    moving_right = False
     right = True    # face direction of player
 
     og_move_speed = 4
@@ -170,14 +169,12 @@ def play(screen):
 
     gravity = 0.24
 
-    screen_offset_x = -900
+    screen_offset_x = -700
     screen_offset_y = 0
+
 
     key_collected = False
     reached = False
-
-    running_block_v = False
-    running_block_h = False
 
     background = Background(200, 100, 700, 400, (43, 44, 48))
     gameover_text = Text(screen.get_width()/2, 200, 'GAME OVER', pygame.font.Font(None, 80), (255, 0, 0))
@@ -188,6 +185,7 @@ def play(screen):
     running = True
     clock = pygame.time.Clock()
     while running:
+        clock.tick(60)
         if screen_number == 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -282,35 +280,64 @@ def play(screen):
             if player.rect.colliderect(key.rect):
                 key_collected = True
 
-            for block in killing_blocks:
-                if player.rect.colliderect(block.rect):
-                    return False
                 
-            if player.rect.colliderect(lemon.rect):
-                lemon.rect.x = 0
-                lemon.rect.y = 0
-                move_speed -= 8
-            if player.rect.colliderect(alcohol.rect):
-                alcohol.rect.x = 0
-                alcohol.rect.y = 0
-                move_speed += 8
+            # if player.rect.colliderect(lemon.rect):
+            #     lemon.rect.x = 0
+            #     lemon.rect.y = 0
+            #     move_speed -= 8
 
-            for block in moving_blocks_v:
-                if not running_block_v and block.rect.y > 2000 and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top) and (player.rect.left > 2464 and player.rect.right < 2600):
-                    running_block_v = True
-                if running_block_v and block.rect.y > 2050:
-                    if (player.rect.left > 2464 and player.rect.right < 2600):
-                        player.rect.y -= 1
-                        block.rect.y -= 2
-
-            for block in moving_blocks_h:
-                if not running_block_h and player.rect.right > block.rect.left:
-                    running_block_h = True
-                if running_block_h and block.rect.x < 3460:
-                    block.rect.x += 2
-                    if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
-                        player.rect.x += 2
-                        screen_offset_x -= 2
+            for cherry in cherries:
+                if pygame.sprite.collide_mask(player, cherry):
+                    cherry.rect.x = 0
+                    cherry.rect.y = 0
+                    player.health += 1
+            
+            for alcohol in alcohols:
+                if pygame.sprite.collide_mask(player, alcohol):
+                    alcohol.rect.x = 0
+                    alcohol.rect.y = 0
+                    player.health -= 1
+            
+            if cokes_shown == 0:
+                if player.rect.x >= 1360 and player.rect.y <= 2600:
+                    cokes_shown = 1
+            elif cokes_shown == 1:
+                if cokes[0].rect.x < 3170:
+                    cokes_accumulator += 4.7
+                    cokes[0].rect.x += 9*(cokes_accumulator//9)
+                    cokes_accumulator = cokes_accumulator%9
+                    if pygame.sprite.collide_mask(player, cokes[0]):
+                        player.health -= 2
+                else:
+                    cokes_accumulator = 0
+                if player.rect.x <= 2530 and player.rect.y <= 2300:
+                    cokes_shown = 2
+            elif cokes_shown == 2:
+                if cokes[1].rect.x > 1200:
+                    cokes[1].rect.x -= 5.6
+                    if pygame.sprite.collide_mask(player, cokes[1]):
+                        player.health -= 2
+                if player.rect.x >= 1756 and player.rect.y <= 2100:
+                    cokes_shown = 3
+            elif cokes_shown == 3:
+                if cokes[2].rect.x < 3250:
+                    cokes[2].rect.x += 5.4
+                    if pygame.sprite.collide_mask(player, cokes[2]):
+                        player.health -= 2
+                if player.rect.x <= 2600 and player.rect.y <= 1800:
+                    cokes_shown = 4
+            elif cokes_shown == 4:
+                if cokes[3].rect.x > 1200:
+                    cokes[3].rect.x -= 6
+                    if pygame.sprite.collide_mask(player, cokes[3]):
+                        player.health -= 2
+                if player.rect.x >= 1900 and player.rect.y <= 1500:
+                    cokes_shown = 5
+            elif cokes_shown == 5:
+                if cokes[4].rect.x < 3000:
+                    cokes[4].rect.x += 5.5
+                    if pygame.sprite.collide_mask(player, cokes[4]):
+                        player.health -= 2
 
             if player.rect.y > 2800:
                 gameover = True
@@ -327,12 +354,6 @@ def play(screen):
                 block.rect.x -= screen_offset_x
                 block.rect.y += screen_offset_y
 
-            for block in killing_blocks:
-                block.rect.x += screen_offset_x
-                block.rect.y -= screen_offset_y
-                screen.blit(block.image, block.rect)
-                block.rect.x -= screen_offset_x
-                block.rect.y += screen_offset_y
 
             if not key_collected:
                 key.rect.x += screen_offset_x
@@ -357,17 +378,26 @@ def play(screen):
             door.rect.x -= screen_offset_x
             door.rect.y += screen_offset_y
 
-            lemon.rect.x += screen_offset_x
-            lemon.rect.y -= screen_offset_y
-            screen.blit(lemon.image, lemon.rect)
-            lemon.rect.x -= screen_offset_x
-            lemon.rect.y += screen_offset_y
+            for cherry in cherries:
+                cherry.rect.x += screen_offset_x
+                cherry.rect.y -= screen_offset_y
+                screen.blit(cherry.image, cherry.rect)
+                cherry.rect.x -= screen_offset_x
+                cherry.rect.y += screen_offset_y
 
-            alcohol.rect.x += screen_offset_x
-            alcohol.rect.y -= screen_offset_y
-            screen.blit(alcohol.image, alcohol.rect)
-            alcohol.rect.x -= screen_offset_x
-            alcohol.rect.y += screen_offset_y
+            for alcohol in alcohols:
+                alcohol.rect.x += screen_offset_x
+                alcohol.rect.y -= screen_offset_y
+                screen.blit(alcohol.image, alcohol.rect)
+                alcohol.rect.x -= screen_offset_x
+                alcohol.rect.y += screen_offset_y
+
+            for i in range(cokes_shown):
+                cokes[i].rect.x += screen_offset_x
+                cokes[i].rect.y -= screen_offset_y
+                screen.blit(cokes[i].image, cokes[i].rect)
+                cokes[i].rect.x -= screen_offset_x
+                cokes[i].rect.y += screen_offset_y
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
@@ -377,6 +407,9 @@ def play(screen):
         
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
+
+            if player.health <= 0:
+                gameover = True
 
             if gameover:
                 for event in pygame.event.get():
@@ -391,7 +424,3 @@ def play(screen):
                 retry_button.draw(screen, mouse_pos, 1)
 
             pygame.display.flip()
-
-
-
-# cigar to alcohol

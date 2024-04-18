@@ -33,6 +33,7 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.image = image
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -65,6 +66,7 @@ class Cigar(pygame.sprite.Sprite):
         original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, action=None):
@@ -264,7 +266,9 @@ def play(screen):
                 key_collected = True
             
             #Moving cigar
-            if player.rect.colliderect(cigar.rect):
+            # if player.rect.collide_(cigar.rect):
+            #     gameover = True
+            if pygame.sprite.collide_mask(player, cigar):
                 gameover = True
             
             if cigar.rect.x - player.rect.x < 200 and player.rect.y - cigar.rect.y < 100:
