@@ -435,7 +435,9 @@ def play(screen):
             if gameover:
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        if main_menu_button.is_clicked(event.pos):
+                        if quit_button.is_clicked(event.pos):
+                            return -1
+                        elif main_menu_button.is_clicked(event.pos):
                             return -1
                         elif retry_button.is_clicked(event.pos):
                             return 0
