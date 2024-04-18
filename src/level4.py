@@ -160,10 +160,10 @@ def play(screen):
     alcohol3 = Alcohol(2550, 1940)
     alcohol4 = Alcohol(2650, 1940)
     alcohols = [alcohol1, alcohol2, alcohol3, alcohol4]
-    moving_alcohol = [alcohol3, alcohol4]
+    moving_alcohol = [alcohol3]
     water1 = Water(2550, 1860)
     water2 = Water(2650, 1860)
-    moving_water = [water1, water2]
+    moving_water = [water1]
     waters = [water1, water2]
     dist_water_moved = [0, 0]
 
@@ -315,13 +315,14 @@ def play(screen):
                 if (alcohol.rect.x - player.rect.x) < 50:
                     if alcohol.rect.y > 1860:
                         alcohol.rect.y -= 16
-            for i in range(2):
-                water = moving_water[i]
+            for water in waters:
                 if player.rect.colliderect(water.rect):
                     player.health += 1
                     move_speed += 0.1
                     water.rect.x = 0
                     water.rect.y = 0
+            for i in range(1):
+                water = moving_water[i]
                 if (water.rect.x - player.rect.x) < 50:
                     if water.rect.y < 1940:
                         water.rect.y += 16
