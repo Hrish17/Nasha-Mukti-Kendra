@@ -195,6 +195,11 @@ def play(screen):
     main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
+    nextlevel_text = Text(screen.get_width()/2, 200, 'YOU WON', pygame.font.Font(None, 80), (0, 255, 0))
+    nextlevel_button = Button(screen.get_width()/2 + 125, 380, 150, 50, (70, 70, 70), 'Next Level', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_main_menu_button = Button(screen.get_width()/2 - 75, 380, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel_retry_button = Button(screen.get_width()/2 - 275, 380, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    nextlevel = False
 
     running = True
     clock = pygame.time.Clock()
@@ -363,7 +368,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        nextlevel = True
 
 
             door.rect.x += screen_offset_x
@@ -409,6 +414,21 @@ def play(screen):
                 gameover_text.draw(screen)
                 main_menu_button.draw(screen, mouse_pos, 1)
                 retry_button.draw(screen, mouse_pos, 1)
+            
+            if nextlevel:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if nextlevel_main_menu_button.is_clicked(event.pos):
+                            return -1
+                        elif nextlevel_retry_button.is_clicked(event.pos):
+                            return 0
+                        elif nextlevel_button.is_clicked(event.pos):
+                            return 1
+                screen.blit(background.surf, background.rect)
+                nextlevel_text.draw(screen)
+                nextlevel_button.draw(screen, mouse_pos, 1)
+                nextlevel_main_menu_button.draw(screen, mouse_pos, 1)
+                nextlevel_retry_button.draw(screen, mouse_pos, 1)
 
             pygame.display.flip()
 
