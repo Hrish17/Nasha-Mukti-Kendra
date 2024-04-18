@@ -6,9 +6,6 @@ class Player(pygame.sprite.Sprite):
         images_path = 'assets/images/character/'
         new_width = 40
         new_height = 85
-        # self.idle_images = [pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha() for i in range(1, 7)]
-        # self.run_images = [pygame.image.load(images_path + 'Run' + str(i) + '.png').convert_alpha() for i in range(1, 9)]
-        # self.jump_images = [pygame.image.load(images_path + 'Jump' + str(i) + '.png').convert_alpha() for i in range(1, 11)]
         self.idle_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 7)]
         self.run_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Run' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 9)]
         self.jump_right_images = [pygame.transform.scale(pygame.image.load(images_path + 'Jump' + str(i) + '.png').convert_alpha(), (new_width, new_height)) for i in range(1, 11)]

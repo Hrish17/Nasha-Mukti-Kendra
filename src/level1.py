@@ -46,7 +46,7 @@ class Background(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
         scaled_image = pygame.transform.scale(original_image, (40, 40))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
@@ -55,7 +55,7 @@ class Key(pygame.sprite.Sprite):
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
+        original_image = pygame.image.load("./assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(topleft = (x, y))
 
@@ -111,7 +111,7 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
-    tmxdata = load_pygame("assets/maps/level1.tmx")
+    tmxdata = load_pygame("./assets/maps/level1.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
@@ -174,6 +174,9 @@ def play(screen):
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if begin_button.is_clicked(event.pos):
+                        screen_number = 2
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
                         screen_number = 2
             screen.fill((43, 44, 48))
             level1.draw(screen)
@@ -312,7 +315,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        screen_number = 3
+                        return 1
 
             door.rect.x += screen_offset_x
             door.rect.y -= screen_offset_y
