@@ -98,6 +98,7 @@ def play(screen):
     pygame.display.set_caption("NASHA MUKTI KENDRA")
 
     screen_number = 1
+    level1 = Text(screen.get_width()/2, 100, 'LEVEL 1', pygame.font.Font(None, 80), (255, 255, 255))
     rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
     disclaimer = Text(screen.get_width()/2, 300, 'DISCLAIMER : This game contains elements of surprise!', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
@@ -108,7 +109,7 @@ def play(screen):
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
 
-    quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (0, 0, 0))
+    quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (43, 44, 48))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
     blocks1 = create_level(blocks1_layer, tmxdata.tilewidth, tmxdata.tileheight)
@@ -166,8 +167,9 @@ def play(screen):
                     if begin_button.is_clicked(event.pos):
                         screen_number = 2
             screen.fill((43, 44, 48))
-            disclaimer.draw(screen)
+            level1.draw(screen)
             rule.draw(screen)
+            disclaimer.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
@@ -325,7 +327,7 @@ def play(screen):
             player.rect.y += screen_offset_y
             
             mouse_pos = pygame.mouse.get_pos()
-            quit_button.draw(screen, mouse_pos, 0)
+            quit_button.draw(screen, mouse_pos, 1)
 
             if gameover:
                 for event in pygame.event.get():
