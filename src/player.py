@@ -25,6 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 2500
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.health = 3
 
         self.action = "idle_right"
 

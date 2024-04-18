@@ -111,6 +111,7 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
+    # health_heading = Text(screen)
     tmxdata = load_pygame("assets/maps/level1.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
