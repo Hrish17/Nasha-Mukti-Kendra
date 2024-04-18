@@ -389,7 +389,7 @@ def play(screen):
         
             mouse_pos = pygame.mouse.get_pos()
             quit_button.draw(screen, mouse_pos, 1)
-            if (player.health == 0):
+            if (player.health <= 0):
                 gameover = True
             for i in range(0, player.health):
                 hearts[i].draw()
