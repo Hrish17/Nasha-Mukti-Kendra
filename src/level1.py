@@ -80,6 +80,19 @@ class Button:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+    
+class ButtonImage:
+    def __init__(self, image_path, position, width, height):
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (width, height))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = position
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def is_clicked(self, mouse_pos):
+        return self.rect.collidepoint(mouse_pos)
 
 def create_level(blocks, tilewidth, tileheight):
     res = pygame.sprite.Group()
@@ -102,6 +115,13 @@ def play(screen):
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     blocks1_layer = tmxdata.get_layer_by_name("Blocks1")
+    logo = pygame.image.load('assets/images/logo.png')
+    logo = Image(screen.get_width()/2 - 250, 40, logo, 500, 400)
+
+    #  screen number = 3
+    back_button3 = Button(screen.get_width()/2 - 300, 400, 150, 50, (70, 70, 70), 'Back', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    retry_button3 = Button(screen.get_width()/2 - 100, 400, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
+    next_level_button = Button(screen.get_width()/2 + 100, 400, 150, 50, (70, 70, 70), 'Next Level', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #######################
     player = character.Player()
@@ -348,7 +368,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        screen_number = 3
 
             door.rect.x += screen_offset_x
             door.rect.y -= screen_offset_y
@@ -377,4 +397,20 @@ def play(screen):
                 main_menu_button.draw(screen, mouse_pos, 1)
                 retry_button.draw(screen, mouse_pos, 1)
 
+            pygame.display.flip()
+
+        elif screen_number == 3:
+            screen.fill((43, 44, 48))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button3.is_clicked(event.pos):
+                        return -1
+            font_heading = pygame.font.Font(None, 60)
+            screen.blit(logo.image, logo.rect)
+            mouse_pos = pygame.mouse.get_pos()
+            back_button3.draw(screen, mouse_pos, 1)
+            retry_button3.draw(screen, mouse_pos, 1)
+            next_level_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
