@@ -80,6 +80,19 @@ class Button:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+    
+class ButtonImage:
+    def __init__(self, image_path, position, width, height):
+        self.image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.image, (width, height))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = position
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def is_clicked(self, mouse_pos):
+        return self.rect.collidepoint(mouse_pos)
 
 def create_level(blocks, tilewidth, tileheight):
     res = pygame.sprite.Group()
@@ -299,7 +312,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        screen_number = 3
 
             door.rect.x += screen_offset_x
             door.rect.y -= screen_offset_y

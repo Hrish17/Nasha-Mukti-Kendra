@@ -23,6 +23,8 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
+
+
 class Text:
     def __init__(self, x, y, text, font, color):
         self.text = text
@@ -59,9 +61,9 @@ def start_level(screen, level_number):
     next = level.play(screen)
     if next == 1:
         level_number += 1
-        level_number = start_level(screen, level_number)
+        start_level(screen, level_number)
     elif next == 0:
-        level_number = start_level(screen, level_number)
+        start_level(screen, level_number)
     return level_number
 
 def main():
@@ -75,7 +77,8 @@ def main():
     logo = pygame.image.load('assets/images/logo.png')
     logo = Image(screen_width/2 - 250, 40, logo, 500, 400)
     logo_beer = pygame.image.load('assets/images/logo_beer.png')
-    logo_beer = Image(screen_width/2 + 70, 380, logo_beer, 50, 50)
+    rotated_logo_beer = pygame.transform.rotate(logo_beer, -20)
+    logo_beer = Image(screen_width/2 + 70, 380, rotated_logo_beer, 90, 70)
 
     button_font = pygame.font.Font(None, 50)
     play_button = Button(screen_width/2 - 60, 390, 120, 50, (43, 44, 48), 'PLAY', button_font, (255, 255, 255), (100, 100, 100))
@@ -89,14 +92,13 @@ def main():
     font_heading = pygame.font.Font(None, 60)
     levels_heading = Heading(screen_width/2, 160, 'LEVELS', font_heading, (255, 255, 255))
     font_button = pygame.font.Font(None, 36)
-    back_button = Button(screen_width/2 - 60, 490, 120, 50, (70, 70, 70), 'BACK', font_button, (255, 255, 255), (100, 100, 100))
+    back_button = Button(screen_width/2 - 60, 490, 120, 50, (43, 44, 48), 'BACK', font_button, (255, 255, 255), (100, 100, 100))
     level_font_button = pygame.font.Font(None, 50)
     
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     screen_number = 1
     clock= pygame.time.Clock()
     while True:
-        clock.tick(60)
         if screen_number == 1:
             screen.fill((43, 44, 48))
             font_heading = pygame.font.Font(None, 60)
@@ -106,16 +108,16 @@ def main():
             controls_button.draw(screen, mouse_pos, 1)
             quit_button.draw(screen, mouse_pos, 1)
             if play_button.rect.collidepoint(mouse_pos):
-                logo_beer.rect.x = screen_width / 2 + 65
-                logo_beer.rect.y = 390
+                logo_beer.rect.x = screen_width / 2 + 50
+                logo_beer.rect.y = 380
                 screen.blit(logo_beer.image, logo_beer.rect)
             elif controls_button.rect.collidepoint(mouse_pos):
-                logo_beer.rect.x = screen_width/2 + 120
-                logo_beer.rect.y = 450
+                logo_beer.rect.x = screen_width/2 + 110
+                logo_beer.rect.y = 440
                 screen.blit(logo_beer.image, logo_beer.rect)
             elif quit_button.rect.collidepoint(mouse_pos):
-                logo_beer.rect.x = screen_width/2 + 65
-                logo_beer.rect.y = 510
+                logo_beer.rect.x = screen_width/2 + 50
+                logo_beer.rect.y = 500
                 screen.blit(logo_beer.image, logo_beer.rect)
             pygame.display.flip()
             for event in pygame.event.get():
@@ -160,6 +162,7 @@ def main():
                     else:
                         level_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
+            clock.tick(100)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
