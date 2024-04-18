@@ -4,8 +4,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         images_path = 'assets/images/character/'
-        new_width = 40
-        new_height = 85
+        new_width = 28
+        new_height = 70
         # self.idle_images = [pygame.image.load(images_path + 'Idle' + str(i) + '.png').convert_alpha() for i in range(1, 7)]
         # self.run_images = [pygame.image.load(images_path + 'Run' + str(i) + '.png').convert_alpha() for i in range(1, 9)]
         # self.jump_images = [pygame.image.load(images_path + 'Jump' + str(i) + '.png').convert_alpha() for i in range(1, 11)]

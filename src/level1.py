@@ -119,8 +119,6 @@ def play(screen):
     player = character.Player()
     all_sprites = pygame.sprite.Group(player)
 
-
-
     quit_button = Button(20, 40, 100, 50, (0, 0, 0), 'Quit', pygame.font.Font(None, 36), (255, 255, 255), (43, 44, 48))
 
     blocks = create_level(blocks_layer, tmxdata.tilewidth, tmxdata.tileheight)
@@ -312,7 +310,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        screen_number = 3
+                        return 1
 
             door.rect.x += screen_offset_x
             door.rect.y -= screen_offset_y
