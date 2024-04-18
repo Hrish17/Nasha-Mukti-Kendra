@@ -57,7 +57,7 @@ class Image(pygame.sprite.Sprite):
         self.height = height
 
 def start_level(screen, level_number):
-    level = __import__(f"level{4}")
+    level = __import__(f"level{level_number}")
     next = level.play(screen)
     if next == 1:
         level_number += 1
