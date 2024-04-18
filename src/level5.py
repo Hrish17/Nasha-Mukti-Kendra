@@ -35,18 +35,18 @@ class Door(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(center = (x, y))
 
-class Cigar():
+class Lemon():
     def __init__(self, x, y):
-        super(Cigar, self).__init__()
-        original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
+        super(Lemon, self).__init__()
+        original_image = pygame.image.load("assets/images/lemon.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
-class Money():
+class Alcohol():
     def __init__(self, x, y):
-        super(Money, self).__init__()
-        original_image = pygame.image.load("assets/images/money.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (30, 30))
+        super(Alcohol, self).__init__()
+        original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
 class Button:
@@ -90,16 +90,9 @@ def play(screen):
     moving_blocks_v = create_level(moving_blocks_layer_v, tmxdata.tilewidth, tmxdata.tileheight)
     moving_blocks_h = create_level(moving_blocks_layer_h, tmxdata.tilewidth, tmxdata.tileheight)
 
-    # blocks2 = pygame.sprite.Group()
-    # for block in blocks:
-    #     blocks2.add(block)
-    # for block in killing_blocks:
-    #     blocks2.add(block)
     for block in moving_blocks_v:
-        # blocks2.add(block)
         blocks.add(block)
     for block in moving_blocks_h:
-        # blocks2.add(block)
         blocks.add(block)
 
     player = Player()
@@ -111,12 +104,8 @@ def play(screen):
     key = Key(2500, 1960)
     door = Door(4160, 2005)
 
-    # print(key.rect.x, key.rect.y)
-    intial_cigar = Cigar(2290, 1940)
-    cigar1 = Cigar(2450, 1700)
-    cigar2 = Cigar(2550, 1700)
-    cigar3 = Cigar(2650, 1700)
-    cigars = [cigar1, cigar2, cigar3]
+    lemon = Lemon(2080, 2400)
+    alcohol = Alcohol(1740, 2464)
 
     moving_left = False
     moving_right = False
@@ -139,9 +128,6 @@ def play(screen):
 
     running_block_v = False
     running_block_h = False
-
-    # running_cigar = False
-    # dist_cigar_moved = 0
 
     running = True
     while running:
@@ -229,13 +215,21 @@ def play(screen):
         if player.rect.colliderect(key.rect):
             key_collected = True
 
+        if player.rect.colliderect(lemon.rect):
+            lemon.rect.x = 0
+            lemon.rect.y = 0
+            move_speed -= 8
+        if player.rect.colliderect(alcohol.rect):
+            alcohol.rect.x = 0
+            alcohol.rect.y = 0
+            move_speed += 8
+
         for block in moving_blocks_v:
             if not running_block_v and block.rect.y > 2000 and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top) and (player.rect.left > 2432 and player.rect.right < 2528):
-                # player.rect.bottom = block.rect.top
                 running_block_v = True
             if running_block_v and block.rect.y > 2050:
-                if (player.rect.left > 2432 and player.rect.right < 2528):
-                    player.rect.y -= 2
+                if (player.rect.left > 2464 and player.rect.right < 2600):
+                    player.rect.y -= 1
                     block.rect.y -= 2
 
         for block in moving_blocks_h:
@@ -248,19 +242,6 @@ def play(screen):
                     screen_offset_x -= 2
                 
 
-        if player.rect.colliderect(intial_cigar.rect):
-            intial_cigar.rect.x = 0
-            intial_cigar.rect.y = 0
-            # move_speed -= 0.2
-
-        for cigar in cigars:
-            if player.rect.colliderect(cigar.rect):
-                # move_speed -= 0.2
-                cigar.rect.x = 0
-                cigar.rect.y = 0
-            if (cigar.rect.x - player.rect.x) < 200:
-                if cigar.rect.y < 1940:
-                    cigar.rect.y += 4
         screen.fill((0, 0, 0))
 
         for x, y, image in background_layer.tiles():
@@ -302,17 +283,17 @@ def play(screen):
         door.rect.x -= screen_offset_x
         door.rect.y += screen_offset_y
 
-        intial_cigar.rect.x += screen_offset_x
-        intial_cigar.rect.y -= screen_offset_y
-        screen.blit(intial_cigar.image, intial_cigar.rect)
-        intial_cigar.rect.x -= screen_offset_x
-        intial_cigar.rect.y += screen_offset_y
-        for cigar in cigars:
-            cigar.rect.x += screen_offset_x
-            cigar.rect.y -= screen_offset_y
-            screen.blit(cigar.image, cigar.rect)
-            cigar.rect.x -= screen_offset_x
-            cigar.rect.y += screen_offset_y
+        lemon.rect.x += screen_offset_x
+        lemon.rect.y -= screen_offset_y
+        screen.blit(lemon.image, lemon.rect)
+        lemon.rect.x -= screen_offset_x
+        lemon.rect.y += screen_offset_y
+
+        alcohol.rect.x += screen_offset_x
+        alcohol.rect.y -= screen_offset_y
+        screen.blit(alcohol.image, alcohol.rect)
+        alcohol.rect.x -= screen_offset_x
+        alcohol.rect.y += screen_offset_y
 
         if not key_collected:
             key.rect.x += screen_offset_x
@@ -320,7 +301,6 @@ def play(screen):
             screen.blit(key.image, key.rect)
             key.rect.x -= screen_offset_x
             key.rect.y += screen_offset_y
-            # print(key.rect.x, key.rect.y)
 
         player.rect.x += screen_offset_x
         player.rect.y -= screen_offset_y
