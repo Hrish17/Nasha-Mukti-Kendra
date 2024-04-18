@@ -159,9 +159,10 @@ def play(screen):
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
 
-
     running = True
+    clock = pygame.time.Clock()
     while running:
+        clock.tick(60)
         if screen_number == 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

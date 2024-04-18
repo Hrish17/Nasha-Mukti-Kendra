@@ -162,7 +162,9 @@ def play(screen):
     gameover = False
 
     running = True
+    clock = pygame.time.Clock()
     while running:
+        clock.tick(60)
         if screen_number == 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

@@ -23,8 +23,6 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-
-
 class Text:
     def __init__(self, x, y, text, font, color):
         self.text = text
@@ -98,6 +96,7 @@ def main():
     screen_number = 1
     clock= pygame.time.Clock()
     while True:
+        clock.tick(60)
         if screen_number == 1:
             screen.fill((43, 44, 48))
             font_heading = pygame.font.Font(None, 60)
@@ -161,7 +160,6 @@ def main():
                     else:
                         level_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
-            clock.tick(100)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
