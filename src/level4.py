@@ -127,7 +127,8 @@ def play(screen):
     # screen number = 1
     screen_number = 1
     level4 = Text(screen.get_width()/2, 100, 'LEVEL 4', pygame.font.Font(None, 80), (255, 255, 255))
-    rule = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
+    text1 = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
+    text2 = Text(screen.get_width()/2, 300, 'There is The path to recovery from addiction may be difficult, but it is possible with determination and support', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
@@ -164,8 +165,11 @@ def play(screen):
     alcohol2 = Alcohol(2450, 1940)
     alcohol3 = Alcohol(2550, 1940)
     alcohol4 = Alcohol(2650, 1940)
-    alcohols = [alcohol1, alcohol2, alcohol3, alcohol4]
+    alcohol5 = Alcohol(1790, 2080)
+    alcohol6 = Alcohol(2016, 2016)
+    alcohols = [alcohol1, alcohol2, alcohol3, alcohol4, alcohol5, alcohol6]
     moving_alcohol = [alcohol3]
+    moving_alcohol2 = [alcohol6]
     water1 = Water(2550, 1860)
     water2 = Water(2650, 1860)
     moving_water = [water1]
@@ -226,7 +230,8 @@ def play(screen):
                         screen_number = 2
             screen.fill((43, 44, 48))
             level4.draw(screen)
-            rule.draw(screen)
+            text1.draw(screen)
+            text2.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
@@ -270,6 +275,7 @@ def play(screen):
                     running_block = True
                 if running_block and block.rect.x < 4000:
                     block.rect.x += 2
+                    moving_alcohol2[0].rect.x += 2
                     if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
                         dx += 2
 
@@ -337,7 +343,7 @@ def play(screen):
             for alcohol in alcohols:
                 if player.rect.colliderect(alcohol.rect):
                     player.update_health(-1)
-                    move_speed -= 0.2
+                    move_speed -= 0.4
                     alcohol.rect.x = 0
                     alcohol.rect.y = 0
             for alcohol in moving_alcohol:
