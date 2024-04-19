@@ -195,6 +195,8 @@ def play(screen):
     bg_sound = pygame.mixer.Sound('./assets/sounds/bg.mp3')
     bg_played = False
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
+    key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
+    win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
 
     running = True
     clock = pygame.time.Clock()
@@ -301,6 +303,7 @@ def play(screen):
 
             if pygame.sprite.collide_mask(player, key):
                 key_collected = True
+                key_sound.play()
                 key.rect.x = screen.get_width()/2 + 280
                 key.rect.y = 20
                 key.update()
@@ -362,6 +365,7 @@ def play(screen):
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
                     bg_sound.stop()
+                    win_sound.play()
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
