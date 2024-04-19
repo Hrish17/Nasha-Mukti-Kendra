@@ -69,7 +69,7 @@ def start_level(screen, level_number):
     return level_number
 
 def main():
-    levels_unlocked = 1
+    levels_unlocked = 7
     total_levels = 10
     pygame.init()
     screen_width = 1080
