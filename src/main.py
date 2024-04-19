@@ -85,7 +85,7 @@ def start_level(screen, level_number, total_levels=7):
     return level_number
 
 def main():
-    levels_unlocked = 7
+    levels_unlocked = 1
     total_levels = 7
     pygame.init()
     pygame.mixer.init()
