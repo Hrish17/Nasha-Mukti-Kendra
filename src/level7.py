@@ -163,8 +163,9 @@ def play(screen):
     key = Key(3680, 2500)
     door = Door(5060, 2290)
 
-    # alcohol1 = A
-    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2925, 2270), Alcohol(3360, 2200), Alcohol(3840, 2200), Alcohol(3840, 2370), Alcohol(3940, 2370), Alcohol(5540, 2270)]
+    alcohol1 = Alcohol(3840, 2370)
+    alcohol2 = Alcohol(3940, 2370)
+    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2925, 2270), Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol1, alcohol2, Alcohol(5540, 2270)]
     moving_alcohol = []
     
     cherries = [Cherry(1795, 2520), Cherry(2925, 2400)]
