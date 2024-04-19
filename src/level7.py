@@ -180,7 +180,7 @@ def play(screen):
     key = Key(3680, 2450)
     door = Door(5060, 2290)
 
-    alcohol1 = Alcohol(2925, 2240)
+    alcohol1 = Alcohol(2925, 2245)
     alcohol2 = Alcohol(3820, 2320)
     alcohol3 = Alcohol(3875, 2336)
     alcohol4 = Alcohol(3930, 2352)
