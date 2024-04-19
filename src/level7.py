@@ -70,7 +70,7 @@ class Key(pygame.sprite.Sprite):
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
+        original_image = pygame.image.load("assets/images/door2.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(center = (x, y))
 
@@ -188,16 +188,12 @@ def play(screen):
     alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2783, 2358), Alcohol(2813, 2358), Alcohol(2850, 2390), Alcohol(2880, 2390), alcohol1, Alcohol(2970, 2390), Alcohol(3000, 2390), Alcohol(3040, 2358), Alcohol(3070, 2358), Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, alcohol4, alcohol5, Alcohol(4500, 2112), Alcohol(5540, 2270)]
     moving_alcohol = [alcohol2, alcohol3, alcohol4, alcohol5]
     moving_up = [False, False, False, False]
-    move_alcohol = False
     naughty_alcohol = [alcohol1]
     alochol_naughty = False
 
     lemon = Lemon(4736, 2112)
     
     cherries = [Cherry(1795, 2510), Cherry(2925, 2390)]
-    cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
-    cokes_shown = 0
-    cokes_accumulator = 0
 
     right = True    # face direction of player
 
@@ -229,6 +225,9 @@ def play(screen):
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
     key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
     win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+    win_sound_played = False
+    gameover_sound = pygame.mixer.Sound('./assets/sounds/gameover.mp3')
+    gameover_sound_played = False
 
     running = True
     clock = pygame.time.Clock()
@@ -410,7 +409,9 @@ def play(screen):
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
                     bg_sound.stop()
-                    win_sound.play()
+                    if not win_sound_played:
+                        win_sound.play()
+                        win_sound_played = True
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
@@ -460,6 +461,9 @@ def play(screen):
 
             if gameover:
                 bg_sound.stop()
+                if not gameover_sound_played:
+                    gameover_sound.play()
+                    gameover_sound_played = True
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if quit_button.is_clicked(event.pos):

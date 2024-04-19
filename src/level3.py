@@ -71,6 +71,7 @@ class Cigar(pygame.sprite.Sprite):
         original_image = pygame.image.load("./assets/images/cigar.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Cherry(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -78,6 +79,7 @@ class Cherry(pygame.sprite.Sprite):
         original_image = pygame.image.load("./assets/images/cherries.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self,x,y,width,height,color):
@@ -199,6 +201,7 @@ def play(screen):
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
     key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
     win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+    win_sound_played = False
     gameover_sound = pygame.mixer.Sound('./assets/sounds/gameover.mp3')
     gameover_sound_played = False
 
@@ -305,13 +308,14 @@ def play(screen):
                 screen_offset_y = player.rect.y - screen.get_height() // 2 - 100
 
             for cherry in cherries:
-                if player.rect.colliderect(cherry.rect):
+                if pygame.sprite.collide_mask(player, cherry):
+                    player.update_health(0)
                     cherry.rect.x = 0
                     cherry.rect.y = 0
                     move_speed += 1
 
             for cigar in cigars:
-                if player.rect.colliderect(cigar.rect):
+                if pygame.sprite.collide_mask(player, cigar):
                     player.update_health(-1)
                     cigar.rect.x = 0
                     cigar.rect.y = 0
@@ -348,7 +352,9 @@ def play(screen):
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
                     bg_sound.stop()
-                    win_sound.play()
+                    if not win_sound_played:
+                        win_sound.play()
+                        win_sound_played = True
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)

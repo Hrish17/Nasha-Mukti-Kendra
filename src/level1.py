@@ -194,6 +194,7 @@ def play(screen):
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
     key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
     win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+    win_sound_played = False
     gameover_sound = pygame.mixer.Sound('./assets/sounds/gameover.mp3')
     gameover_sound_played = False
 
@@ -358,7 +359,9 @@ def play(screen):
             if key_collected:
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     bg_sound.stop()
-                    win_sound.play()
+                    if not win_sound_played:
+                        win_sound.play()
+                        win_sound_played = True
                     reached = True
                     if player.alpha > 0:
                         player.alpha -= 5

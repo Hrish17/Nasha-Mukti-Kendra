@@ -102,7 +102,7 @@ class Cocaine():
     def __init__(self, x, y):
         super(Cocaine, self).__init__()
         original_image = pygame.image.load("./assets/images/cocaine.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (170, 150))
+        self.image = pygame.transform.scale(original_image, (190, 150))
         self.rect = self.image.get_rect(topleft=(x,y))
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -142,12 +142,11 @@ def create_level(blocks, tilewidth, tileheight):
 def play(screen):
     pygame.display.set_caption("NASHA MUKTI KENDRA")
 
-    # screen number = 1
     screen_number = 1
     level4 = Text(screen.get_width()/2, 100, 'LEVEL 6', pygame.font.Font(None, 80), (255, 255, 255))
     text1 = Text(screen.get_width()/2, 250, 'Fruits increase your health', pygame.font.Font(None, 50), (255, 255, 255))
     text2 = Text(screen.get_width()/2, 300, 'Alcohol and smoking decreases your health', pygame.font.Font(None, 50), (255, 0, 0))
-    text3 = Text(screen.get_width()/2, 350, 'Overdose of highly addictive drugs like COCAINE can be lethal', pygame.font.Font(None, 50), (255, 0, 0))
+    text3 = Text(screen.get_width()/2, 350, 'Overdose of highly addictive drugs like LSD can be lethal', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
@@ -182,7 +181,6 @@ def play(screen):
     cherries = [Cherry(3600, 2350), Cherry(3520, 1750)]
     cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
     cokes_shown = 0
-    cokes_accumulator = 0
 
     right = True    # face direction of player
 
@@ -218,6 +216,7 @@ def play(screen):
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
     key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
     win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+    win_sound_played = False
     gameover_sound = pygame.mixer.Sound('./assets/sounds/gameover.mp3')
     gameover_sound_played = False
 
@@ -344,42 +343,38 @@ def play(screen):
                     player.update_health(-1)
             
             if cokes_shown == 0:
-                if player.rect.x >= 1360 and player.rect.y <= 2600:
+                if player.rect.x >= 1440 and player.rect.y <= 2600:
                     cokes_shown = 1
             elif cokes_shown == 1:
-                if cokes[0].rect.x < 3170:
-                    cokes_accumulator += 4.7
-                    cokes[0].rect.x += 9*(cokes_accumulator//9)
-                    cokes_accumulator = cokes_accumulator%9
-                else:
-                    cokes_accumulator = 0
+                if cokes[0].rect.x < 3200:
+                    cokes[0].rect.x += 4.5
                 if pygame.sprite.collide_mask(player, cokes[0]):
                     gameover = True
                 if player.rect.x <= 2530 and player.rect.y <= 2300:
                     cokes_shown = 2
             elif cokes_shown == 2:
-                if cokes[1].rect.x > 1200:
+                if cokes[1].rect.x > 1195:
                     cokes[1].rect.x -= 5.6
                 if pygame.sprite.collide_mask(player, cokes[1]):
                     gameover = True
                 if player.rect.x >= 1756 and player.rect.y <= 2100:
                     cokes_shown = 3
             elif cokes_shown == 3:
-                if cokes[2].rect.x < 3250:
+                if cokes[2].rect.x < 3255:
                     cokes[2].rect.x += 5.4
                 if pygame.sprite.collide_mask(player, cokes[2]):
                     gameover = True
-                if player.rect.x <= 2600 and player.rect.y <= 1800:
+                if player.rect.x <= 2605 and player.rect.y <= 1800:
                     cokes_shown = 4
             elif cokes_shown == 4:
-                if cokes[3].rect.x > 1200:
+                if cokes[3].rect.x > 1195:
                     cokes[3].rect.x -= 6
                 if pygame.sprite.collide_mask(player, cokes[3]):
                     gameover = True
                 if player.rect.x >= 1900 and player.rect.y <= 1500:
                     cokes_shown = 5
             elif cokes_shown == 5:
-                if cokes[4].rect.x < 3000:
+                if cokes[4].rect.x < 3105:
                     cokes[4].rect.x += 5.5
                 if pygame.sprite.collide_mask(player, cokes[4]):
                     gameover = True
@@ -413,7 +408,9 @@ def play(screen):
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
                     bg_sound.stop()
-                    win_sound.play()
+                    if not win_sound_played:
+                        win_sound.play()
+                        win_sound_played = True
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
