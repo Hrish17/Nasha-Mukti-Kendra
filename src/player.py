@@ -33,6 +33,9 @@ class Player(pygame.sprite.Sprite):
         self.image.set_alpha(self.alpha)
         self.mask = pygame.mask.from_surface(self.image)
 
+        self.hurt_sound = pygame.mixer.Sound('./assets/sounds/hurt.mp3')
+        self.heal_sound = pygame.mixer.Sound('./assets/sounds/heal.mp3')
+
     def update(self):
         if self.action == "idle_right":
             self.animate(self.idle_right_images)
@@ -57,3 +60,10 @@ class Player(pygame.sprite.Sprite):
             self.animation_counter = 0
             self.animation_index = (self.animation_index + 1) % len(images)
             self.image = images[self.animation_index]
+    
+    def update_health(self, x):
+        self.health +=x
+        if x < 0:
+            self.hurt_sound.play()
+        else:
+            self.heal_sound.play()

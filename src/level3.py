@@ -46,30 +46,36 @@ class Block(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
-        scaled_image = pygame.transform.scale(original_image, (40, 40))
-        rotated_image = pygame.transform.rotate(scaled_image, 90)
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (80, 80))
+        rotated_image = pygame.transform.rotate(scaled_image, -45)
         self.image = rotated_image
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (50, 50))
+        self.image = scaled_image
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
+        original_image = pygame.image.load("./assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(topleft=(x, y))
 
 class Cigar(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Cigar, self).__init__()
-        original_image = pygame.image.load("assets/images/cigar.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/cigar.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
 class Cherry(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Cherry, self).__init__()
-        original_image = pygame.image.load("assets/images/cherries.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/cherries.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (50, 50))
         self.rect = self.image.get_rect(topleft=(x, y))
 
@@ -91,6 +97,7 @@ class Button:
         self.font = font
         self.text_color = text_color
         self.action = action
+        self.click_sound = pygame.mixer.Sound('./assets/sounds/button_click.mp3')
 
     def draw(self, screen, mouse_pos, hover):
         if self.rect.collidepoint(mouse_pos) and hover:
@@ -102,7 +109,10 @@ class Button:
         screen.blit(font_surface, font_rect)
 
     def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+        if self.rect.collidepoint(pos):
+            self.click_sound.play()
+            return True
+        return False
 
 def create_level(blocks, tilewidth, tileheight):
     res = pygame.sprite.Group()
@@ -125,11 +135,11 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     #screen_number = 2
-    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, 'assets/images/heart.png')
-    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, 'assets/images/heart.png')
-    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, 'assets/images/heart.png')
+    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, './assets/images/heart.png')
+    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, './assets/images/heart.png')
+    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, './assets/images/heart.png')
     hearts = [heart1, heart2, heart3]
-    tmxdata = load_pygame("assets/maps/level3.tmx")
+    tmxdata = load_pygame("./assets/maps/level3.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
 
@@ -141,7 +151,7 @@ def play(screen):
     all_sprites = pygame.sprite.Group(player)
     player.health = 2
 
-    key = Key(1700, 2520)
+    key = Key(1700, 2480)
     door = Door(2780, 2150)
 
     cherry1 = Cherry(1540, 2385)
@@ -153,8 +163,6 @@ def play(screen):
     cigar2 = Cigar(2200, 2257)
     cigars = [cigar1, cigar2]
 
-    moving_left = False
-    moving_right = False
     right = True
 
     move_speed = 4
@@ -175,8 +183,6 @@ def play(screen):
     show_cigar1 = False
     show_cigar2 = False
 
-    falling_blocks = False
-
     background = Background(200, 100, 700, 400, (43, 44, 48))
     gameover_text = Text(screen.get_width()/2, 200, 'GAME OVER', pygame.font.Font(None, 80), (255, 0, 0))
     main_menu_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
@@ -187,6 +193,10 @@ def play(screen):
     nextlevel_main_menu_button = Button(screen.get_width()/2 - 75, 380, 150, 50, (70, 70, 70), 'Main Menu', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     nextlevel_retry_button = Button(screen.get_width()/2 - 275, 380, 150, 50, (70, 70, 70), 'Play Again', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     nextlevel = False
+
+    bg_sound = pygame.mixer.Sound('./assets/sounds/bg.mp3')
+    bg_played = False
+    jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
 
     running = True
     clock = pygame.time.Clock()
@@ -199,7 +209,7 @@ def play(screen):
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if begin_button.is_clicked(event.pos):
                         screen_number = 2
-            screen.fill((0, 0, 0))
+            screen.fill((43, 44, 48))
             level3.draw(screen)
             text1.draw(screen)
             text2.draw(screen)
@@ -209,19 +219,25 @@ def play(screen):
             pygame.display.flip()
 
         elif screen_number == 2:
+            if not bg_played:
+                bg_sound.play()
+                bg_played = True
             dx = 0
             dy = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    bg_sound.stop()
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if quit_button.is_clicked(event.pos):
+                        bg_sound.stop()
                         return -1
 
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and not jumping:
                 jump_speed = og_jump_speed
                 jumping = True
+                jump_sound.play()
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 dx -= move_speed
                 right = False
@@ -284,15 +300,6 @@ def play(screen):
             elif player.rect.y > screen.get_height() // 2:
                 screen_offset_y = player.rect.y - screen.get_height() // 2 - 100
 
-            #Falling blocks
-            # for block in blocks1:
-            #     if block.rect.x - player.rect.x < 30 and key_collected:
-            #         falling_blocks = True
-
-            # if falling_blocks:
-            #     for block in blocks1:
-            #         block.rect.y += 6
-
             for cherry in cherries:
                 if player.rect.colliderect(cherry.rect):
                     cherry.rect.x = 0
@@ -301,17 +308,15 @@ def play(screen):
 
             for cigar in cigars:
                 if player.rect.colliderect(cigar.rect):
-                    player.health -= 1
+                    player.update_health(-1)
                     cigar.rect.x = 0
                     cigar.rect.y = 0
                     
             if player.rect.y > 2800:
+                bg_sound.stop()
                 gameover = True
 
             screen.fill((0, 0, 0))
-
-            if player.rect.y > 2800:
-                gameover = True
 
             for x, y, image in background_layer.tiles():
                 screen.blit(image, (x * tmxdata.tilewidth + screen_offset_x, y * tmxdata.tileheight - screen_offset_y))
@@ -327,13 +332,17 @@ def play(screen):
                     cherry3.rect.x = 0
                     cherry3.rect.y = 0
             
-            if player.rect.colliderect(key.rect):
+            if pygame.sprite.collide_mask(player, key):
                 key_collected = True
+                key.rect.x = screen.get_width()/2 + 280
+                key.rect.y = 20
+                key.update()
 
 
             if key_collected:
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
+                    bg_sound.stop()
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
@@ -346,6 +355,8 @@ def play(screen):
                 screen.blit(key.image, key.rect)
                 key.rect.x -= screen_offset_x
                 key.rect.y += screen_offset_y
+            else:
+                screen.blit(key.image, key.rect)
                     
             for block in blocks:
                 block.rect.x += screen_offset_x
@@ -392,6 +403,7 @@ def play(screen):
             quit_button.draw(screen, mouse_pos, 1)
             if player.health <= 0:
                 gameover = True
+                bg_sound.stop()
             for i in range(0, player.health):
                 hearts[i].draw()
 

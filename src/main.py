@@ -1,8 +1,9 @@
 import pygame
 from pygame.locals import *
+# import os
 
 class Button:
-    def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, action=None):
+    def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, has_hover_sound, action=None):
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.hover_color = hover_color  # New attribute for hover color
@@ -10,18 +11,31 @@ class Button:
         self.font = font
         self.text_color = text_color
         self.action = action
+        self.has_hover_sound = has_hover_sound
+        self.hover_sound = pygame.mixer.Sound('./assets/sounds/button_hover.mp3')
+        self.click_sound = pygame.mixer.Sound('./assets/sounds/button_click.mp3')
+        self.sound_played = False
 
     def draw(self, screen, mouse_pos, hover):
         if self.rect.collidepoint(mouse_pos) and hover:
             pygame.draw.rect(screen, self.hover_color, self.rect)
+        if self.rect.collidepoint(mouse_pos) and self.has_hover_sound:
+            if not self.sound_played:
+                self.sound_played = True
+                self.hover_sound.play()
         else:
             pygame.draw.rect(screen, self.color, self.rect)
+            self.hover_sound.stop()
+            self.sound_played = False
         font_surface = self.font.render(self.text, True, self.text_color)
         font_rect = font_surface.get_rect(center=self.rect.center)
         screen.blit(font_surface, font_rect)
 
     def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+        if self.rect.collidepoint(pos):
+            self.click_sound.play()
+            return True
+        return False
 
 
 
@@ -72,6 +86,8 @@ def main():
     levels_unlocked = 1
     total_levels = 10
     pygame.init()
+    pygame.mixer.init()
+
     screen_width = 1080
     screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
@@ -82,9 +98,10 @@ def main():
     logo_beer = Image(screen_width/2 + 70, 380, logo_beer, 50, 50)
 
     button_font = pygame.font.Font(None, 50)
-    play_button = Button(screen_width/2 - 60, 390, 120, 50, (43, 44, 48), 'PLAY', button_font, (255, 255, 255), (100, 100, 100))
-    controls_button = Button(screen_width/2 - 115, 450, 230, 50, (43, 44, 48), 'CONTROLS', button_font, (255, 255, 255), (100, 100, 100))
-    quit_button = Button(screen_width/2 - 60, 510, 120, 50, (43, 44, 48), 'QUIT', button_font, (255, 255, 255), (100, 100, 100))
+    play_button = Button(screen_width/2 - 60, 390, 120, 50, (43, 44, 48), 'PLAY', button_font, (255, 255, 255), (100, 100, 100), 1)
+    controls_button = Button(screen_width/2 - 115, 450, 230, 50, (43, 44, 48), 'CONTROLS', button_font, (255, 255, 255), (100, 100, 100), 1)
+    quit_button = Button(screen_width/2 - 60, 510, 120, 50, (43, 44, 48), 'QUIT', button_font, (255, 255, 255), (100, 100, 100), 1)
+    pygame.mixer.music.set_volume(0.1)
 
     controls = Text(screen.get_width()/2, 100, 'CONTROLS', pygame.font.Font(None, 70), (255, 255, 255))
     controls_image = Image(screen.get_width()/2 - 400, 190, pygame.image.load("./assets/images/controls.png"), 800, 300)
@@ -92,7 +109,7 @@ def main():
     font_heading = pygame.font.Font(None, 60)
     levels_heading = Heading(screen_width/2, 160, 'LEVELS', font_heading, (255, 255, 255))
     font_button = pygame.font.Font(None, 36)
-    back_button = Button(screen_width/2 - 60, 490, 120, 50, (70, 70, 70), 'BACK', font_button, (255, 255, 255), (100, 100, 100))
+    back_button = Button(screen_width/2 - 60, 490, 120, 50, (70, 70, 70), 'BACK', font_button, (255, 255, 255), (100, 100, 100), 1)
     level_font_button = pygame.font.Font(None, 50)
     
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
@@ -154,7 +171,7 @@ def main():
             level_buttons = []
             for i in range(1, (total_levels // 6) + 2):
                 for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
-                    level_button = Button(150 * j, 150 + 100 * i, 50, 50, (100, 100, 100), f'{6*(i-1) + j}', level_font_button, (255, 255, 255), (80, 80, 80))
+                    level_button = Button(150 * j, 150 + 100 * i, 50, 50, (100, 100, 100), f'{6*(i-1) + j}', level_font_button, (255, 255, 255), (60, 60, 60) ,0)
                     level_buttons.append(level_button)
                     if 5*(i-1) + j > levels_unlocked:
                         level_button.color = (43, 44, 48)

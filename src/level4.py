@@ -55,38 +55,37 @@ class Background(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
-        scaled_image = pygame.transform.scale(original_image, (40, 40))
-        rotated_image = pygame.transform.rotate(scaled_image, 90)
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (80, 80))
+        rotated_image = pygame.transform.rotate(scaled_image, -45)
         self.image = rotated_image
-        self.rect = self.image.get_rect(topleft=(x,y))
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (50, 50))
+        self.image = scaled_image
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Door, self).__init__()
-        original_image = pygame.image.load("assets/images/door.jpg").convert_alpha()
+        original_image = pygame.image.load("./assets/images/door.jpg").convert_alpha()
         self.image = pygame.transform.scale(original_image, (60, 90))
         self.rect = self.image.get_rect(center = (x, y))
 
 class Alcohol():
     def __init__(self, x, y):
         super(Alcohol, self).__init__()
-        original_image = pygame.image.load("assets/images/alcohol.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/alcohol.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
 class Water():
     def __init__(self, x, y):
         super(Water, self).__init__()
-        original_image = pygame.image.load("assets/images/water.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/water.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
-        self.rect = self.image.get_rect(topleft=(x,y))
-
-class Money():
-    def __init__(self, x, y):
-        super(Money, self).__init__()
-        original_image = pygame.image.load("assets/images/money.png").convert_alpha()
-        self.image = pygame.transform.scale(original_image, (30, 30))
         self.rect = self.image.get_rect(topleft=(x,y))
 
 class Button:
@@ -98,6 +97,7 @@ class Button:
         self.font = font
         self.text_color = text_color
         self.action = action
+        self.click_sound = pygame.mixer.Sound('./assets/sounds/button_click.mp3')
 
     def draw(self, screen, mouse_pos, hover):
         if self.rect.collidepoint(mouse_pos) and hover:
@@ -109,7 +109,10 @@ class Button:
         screen.blit(font_surface, font_rect)
 
     def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+        if self.rect.collidepoint(pos):
+            self.click_sound.play()
+            return True
+        return False
 
 def create_level(blocks, tilewidth, tileheight):
     res = pygame.sprite.Group()
@@ -128,11 +131,13 @@ def play(screen):
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
-    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, 'assets/images/heart.png')
-    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, 'assets/images/heart.png')
-    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, 'assets/images/heart.png')
-    hearts = [heart1, heart2, heart3]
-    tmxdata = load_pygame("assets/maps/level4.tmx")
+    heart1 = Image(screen, screen.get_width()/2 + 350, 30, 32, 32, './assets/images/heart.png')
+    heart2 = Image(screen, screen.get_width()/2 + 390, 30, 32, 32, './assets/images/heart.png')
+    heart3 = Image(screen, screen.get_width()/2 + 430, 30, 32, 32, './assets/images/heart.png')
+    heart4 = Image(screen, screen.get_width()/2 + 470, 30, 32, 32, './assets/images/heart.png')
+    heart5 = Image(screen, screen.get_width()/2 + 510, 30, 32, 32, './assets/images/heart.png')
+    hearts = [heart1, heart2, heart3, heart4, heart5]
+    tmxdata = load_pygame("./assets/maps/level4.tmx")
     background_layer = tmxdata.get_layer_by_name("Background")
     blocks_layer = tmxdata.get_layer_by_name("Blocks")
     killing_blocks_layer = tmxdata.get_layer_by_name("KillerBlocks")
@@ -152,7 +157,7 @@ def play(screen):
 
     lowest_camera_y = player.rect.y
 
-    key = Key(2450, 1860)
+    key = Key(2420, 1820)
     door = Door(4500, 1940)
 
     alcohol1 = Alcohol(2290, 1940)
@@ -202,6 +207,10 @@ def play(screen):
     nextlevel_retry_button = Button(screen.get_width()/2 - 275, 380, 150, 50, (70, 70, 70), 'Play Again', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     nextlevel = False
 
+    bg_sound = pygame.mixer.Sound('./assets/sounds/bg.mp3')
+    bg_played = False
+    jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
+
     running = True
     clock = pygame.time.Clock()
     while running:
@@ -220,19 +229,25 @@ def play(screen):
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
         elif screen_number == 2:
+            if not bg_played:
+                bg_sound.play()
+                bg_played = True
             dx = 0
             dy = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    bg_sound.stop()
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if quit_button.is_clicked(event.pos):
+                        bg_sound.stop()
                         return -1
 
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and not jumping:
                 jump_speed = og_jump_speed
                 jumping = True
+                jump_sound.play()
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 dx -= move_speed
                 right = False
@@ -313,16 +328,20 @@ def play(screen):
             if player.rect.y > lowest_camera_y:
                 screen_offset_y = lowest_camera_y - screen.get_height() // 2 - 100
 
-            if player.rect.colliderect(key.rect):
+            if pygame.sprite.collide_mask(player, key):
                 key_collected = True
+                key.rect.x = screen.get_width()/2 + 280
+                key.rect.y = 20
+                key.update()
 
             for block in killing_blocks:
                 if player.rect.colliderect(block.rect):
                     gameover = True
+                    bg_sound.stop()
 
             for alcohol in alcohols:
                 if player.rect.colliderect(alcohol.rect):
-                    player.health -= 1
+                    player.update_health(-1)
                     move_speed -= 0.2
                     alcohol.rect.x = 0
                     alcohol.rect.y = 0
@@ -332,7 +351,7 @@ def play(screen):
                         alcohol.rect.y -= 16
             for water in waters:
                 if player.rect.colliderect(water.rect):
-                    player.health += 1
+                    player.update_health(1)
                     move_speed += 0.1
                     water.rect.x = 0
                     water.rect.y = 0
@@ -344,6 +363,7 @@ def play(screen):
 
             if player.rect.y > 2800:
                 gameover = True
+                bg_sound.stop()
 
             screen.fill((0, 0, 0))
 
@@ -370,10 +390,13 @@ def play(screen):
                 screen.blit(key.image, key.rect)
                 key.rect.x -= screen_offset_x
                 key.rect.y += screen_offset_y
+            else:
+                screen.blit(key.image, key.rect)
 
             if key_collected:
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
+                    bg_sound.stop()
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
@@ -410,6 +433,7 @@ def play(screen):
             quit_button.draw(screen, mouse_pos, 1)
             if (player.health <= 0):
                 gameover = True
+                bg_sound.stop()
             for i in range(0, player.health):
                 hearts[i].draw()
 
