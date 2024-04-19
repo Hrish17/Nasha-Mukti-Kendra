@@ -55,11 +55,17 @@ class Background(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
-        original_image = pygame.image.load("assets/images/key.png").convert_alpha()
-        scaled_image = pygame.transform.scale(original_image, (65, 65))
-        rotated_image = pygame.transform.rotate(scaled_image, 90)
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (80, 80))
+        rotated_image = pygame.transform.rotate(scaled_image, -45)
         self.image = rotated_image
-        self.rect = self.image.get_rect(topleft=(x,y))
+        self.rect = self.image.get_rect(topleft = (x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        original_image = pygame.image.load("./assets/images/key.png").convert_alpha()
+        scaled_image = pygame.transform.scale(original_image, (50, 50))
+        self.image = scaled_image
 
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -109,6 +115,7 @@ class Button:
         self.font = font
         self.text_color = text_color
         self.action = action
+        self.click_sound = pygame.mixer.Sound('./assets/sounds/button_click.mp3')
 
     def draw(self, screen, mouse_pos, hover):
         if self.rect.collidepoint(mouse_pos) and hover:
@@ -120,7 +127,10 @@ class Button:
         screen.blit(font_surface, font_rect)
 
     def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+        if self.rect.collidepoint(pos):
+            self.click_sound.play()
+            return True
+        return False
 
 def create_level(blocks, tilewidth, tileheight):
     res = pygame.sprite.Group()
@@ -135,9 +145,8 @@ def play(screen):
     # screen number = 1
     screen_number = 1
     level4 = Text(screen.get_width()/2, 100, 'LEVEL 7', pygame.font.Font(None, 80), (255, 255, 255))
-    text1 = Text(screen.get_width()/2, 250, 'Fruits increase your health', pygame.font.Font(None, 50), (255, 255, 255))
-    text2 = Text(screen.get_width()/2, 300, 'Alcohol and smoking decreases your health', pygame.font.Font(None, 50), (255, 0, 0))
-    text3 = Text(screen.get_width()/2, 350, 'Alcohol can change you your ways be careful', pygame.font.Font(None, 50), (255, 0, 0))
+    text1 = Text(screen.get_width()/2, 230, 'Excessive alcohol exposure results in cerebellar ataxia', pygame.font.Font(None, 50), (255, 0, 0))
+    text2 = Text(screen.get_width()/2, 300, 'and can lead to impaired postural stability and balance', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
@@ -160,7 +169,7 @@ def play(screen):
 
     lowest_camera_y = player.rect.y
 
-    key = Key(3680, 2500)
+    key = Key(3680, 2450)
     door = Door(5060, 2290)
 
     alcohol1 = Alcohol(2925, 2270)
@@ -175,9 +184,6 @@ def play(screen):
     alochol_naughty = False
     
     cherries = [Cherry(1795, 2520), Cherry(2925, 2400)]
-    cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
-    cokes_shown = 0
-    cokes_accumulator = 0
 
     right = True    # face direction of player
 
@@ -204,6 +210,12 @@ def play(screen):
     retry_button = Button(screen.get_width()/2 - 75, 350, 150, 50, (70, 70, 70), 'Retry', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
     gameover = False
 
+    bg_sound = pygame.mixer.Sound('./assets/sounds/bg.mp3')
+    bg_played = False
+    jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
+    key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
+    win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+
     running = True
     clock = pygame.time.Clock()
     while running:
@@ -219,24 +231,29 @@ def play(screen):
             level4.draw(screen)
             text1.draw(screen)
             text2.draw(screen)
-            text3.draw(screen)
             mouse_pos = pygame.mouse.get_pos()
             begin_button.draw(screen, mouse_pos, 1)
             pygame.display.flip()
         elif screen_number == 2:
+            if not bg_played:
+                bg_sound.play()
+                bg_played = True
             dx = 0
             dy = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    bg_sound.stop()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if quit_button.is_clicked(event.pos):
+                        bg_sound.stop()
                         return -1
 
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and not jumping:
                 jump_speed = og_jump_speed
                 jumping = True
+                jump_sound.play()
             if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and (not alochol_naughty):
                 dx -= move_speed
                 right = False
@@ -311,15 +328,18 @@ def play(screen):
             if player.rect.y > lowest_camera_y:
                 screen_offset_y = lowest_camera_y - screen.get_height() // 2 - 100
 
-            if player.rect.colliderect(key.rect):
+            if pygame.sprite.collide_mask(player, key):
                 key_collected = True
-                move_alcohol = True
+                key_sound.play()
+                key.rect.x = screen.get_width()/2 + 280
+                key.rect.y = 20
+                key.update()
 
             for cherry in cherries:
                 if pygame.sprite.collide_mask(player, cherry):
                     cherry.rect.x = 0
                     cherry.rect.y = 0
-                    player.health += 1
+                    player.update_health(1)
 
             for alcohol in naughty_alcohol:
                 if pygame.sprite.collide_mask(player, alcohol):
@@ -330,7 +350,7 @@ def play(screen):
                 if pygame.sprite.collide_mask(player, alcohol):
                     alcohol.rect.x = 0
                     alcohol.rect.y = 0
-                    player.health -= 1
+                    player.update_health(-1)
             for i in range(2):
                 alcohol = moving_alcohol[i]
                 if key_collected:
@@ -359,15 +379,19 @@ def play(screen):
                 screen.blit(key.image, key.rect)
                 key.rect.x -= screen_offset_x
                 key.rect.y += screen_offset_y
+            else:
+                screen.blit(key.image, key.rect)
 
             if key_collected:
                 if abs(player.rect.center[0] - door.rect.center[0]) <= 4 and player.rect.center[1] > door.rect.top and player.rect.center[1] < door.rect.bottom:
                     reached = True
+                    bg_sound.stop()
+                    win_sound.play()
                     if player.alpha > 0:
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return -1
+                        return 1
 
 
             door.rect.x += screen_offset_x
@@ -390,13 +414,6 @@ def play(screen):
                 alcohol.rect.x -= screen_offset_x
                 alcohol.rect.y += screen_offset_y
 
-            # for i in range(cokes_shown):
-            #     cokes[i].rect.x += screen_offset_x
-            #     cokes[i].rect.y -= screen_offset_y
-            #     screen.blit(cokes[i].image, cokes[i].rect)
-            #     cokes[i].rect.x -= screen_offset_x
-            #     cokes[i].rect.y += screen_offset_y
-
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
             all_sprites.draw(screen)
@@ -412,6 +429,7 @@ def play(screen):
                 hearts[i].draw()
 
             if gameover:
+                bg_sound.stop()
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if quit_button.is_clicked(event.pos):

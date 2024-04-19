@@ -70,21 +70,23 @@ class Image(pygame.sprite.Sprite):
         self.width = width
         self.height = height
 
-def start_level(screen, level_number):
+def start_level(screen, level_number, total_levels=7):
+    if level_number > total_levels:
+        return level_number
     level = __import__(f"level{level_number}")
     next = level.play(screen)
-    if next == 2:
+    if next == 2: # Restart level if completed
         level_number = max(level_number + 1, start_level(screen, level_number))
-    if next == 1:
+    if next == 1: # Next level
         level_number += 1
         level_number = start_level(screen, level_number)
-    elif next == 0:
+    elif next == 0: # Restart level if not completed
         level_number = start_level(screen, level_number)
     return level_number
 
 def main():
     levels_unlocked = 1
-    total_levels = 10
+    total_levels = 7
     pygame.init()
     pygame.mixer.init()
 
@@ -111,6 +113,14 @@ def main():
     font_button = pygame.font.Font(None, 36)
     back_button = Button(screen_width/2 - 60, 490, 120, 50, (70, 70, 70), 'BACK', font_button, (255, 255, 255), (100, 100, 100), 1)
     level_font_button = pygame.font.Font(None, 50)
+
+    completed = Heading(screen_width/2, screen_height/2 - 150, 'GAME COMPLETED!', pygame.font.Font(None, 70), (255, 255, 255))
+    credits = Text(screen_width/2, screen_height/2-20, 'Developed by: ', pygame.font.Font(None, 60), (255, 255, 255))
+    credits2 = Text(screen_width/2, screen_height/2 + 50, 'Hrishabh Sangwaiya', pygame.font.Font(None, 45), (255, 255, 255))
+    credits3 = Text(screen_width/2, screen_height/2 + 100, 'Girvar Patidar', pygame.font.Font(None, 45), (255, 255, 255))
+    continue_button = Button(screen_width/2 - 75, 490, 150, 50, (70, 70, 70), 'CONTINUE', font_button, (255, 255, 255), (100, 100, 100), 1)
+    completed_music = pygame.mixer.Sound('./assets/sounds/completed.mp3')
+    completed_music_played = False
     
     pygame.mouse.set_cursor(*pygame.cursors.tri_left)
     screen_number = 1
@@ -173,7 +183,7 @@ def main():
                 for j in range(1, 7 if i <= (total_levels) // 6 else total_levels % 6 + 1):
                     level_button = Button(150 * j, 150 + 100 * i, 50, 50, (100, 100, 100), f'{6*(i-1) + j}', level_font_button, (255, 255, 255), (60, 60, 60) ,0)
                     level_buttons.append(level_button)
-                    if 5*(i-1) + j > levels_unlocked:
+                    if 6*(i-1) + j > levels_unlocked:
                         level_button.color = (43, 44, 48)
                         level_button.draw(screen, mouse_pos, 0)
                     else:
@@ -195,7 +205,29 @@ def main():
                                 level_button = level_buttons[i - 1]
                                 if level_button.is_clicked(event.pos):
                                     l_number = start_level(screen, i)
+                                    if l_number > total_levels:
+                                        screen_number = 4
+                                        continue
                                     if l_number > levels_unlocked:
                                         levels_unlocked = l_number
-
+        elif screen_number == 4:
+            if not completed_music_played:
+                completed_music.play()
+                completed_music_played = True
+            screen.fill((43, 44, 48))
+            completed.draw(screen)
+            credits.draw(screen)
+            credits2.draw(screen)
+            credits3.draw(screen)
+            mouse_pos = pygame.mouse.get_pos()
+            continue_button.draw(screen, mouse_pos, 1)
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if continue_button.is_clicked(event.pos):
+                        completed_music.stop()
+                        screen_number = 1
 main()

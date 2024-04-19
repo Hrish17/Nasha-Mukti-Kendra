@@ -199,7 +199,6 @@ def play(screen):
     screen_offset_x = -700
     screen_offset_y = 0
 
-
     key_collected = False
     reached = False
 
@@ -214,6 +213,8 @@ def play(screen):
     jump_sound = pygame.mixer.Sound('./assets/sounds/jump.mp3')
     key_sound = pygame.mixer.Sound('./assets/sounds/key.mp3')
     win_sound = pygame.mixer.Sound('./assets/sounds/win.mp3')
+    gameover_sound = pygame.mixer.Sound('./assets/sounds/gameover.mp3')
+    gameover_sound_played = False
 
     running = True
     clock = pygame.time.Clock()
@@ -458,6 +459,9 @@ def play(screen):
 
             if gameover:
                 bg_sound.stop()
+                if not gameover_sound_played:
+                    gameover_sound.play()
+                    gameover_sound_played = True
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if quit_button.is_clicked(event.pos):
