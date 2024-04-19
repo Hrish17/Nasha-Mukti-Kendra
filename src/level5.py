@@ -77,7 +77,7 @@ class Door(pygame.sprite.Sprite):
 class Cigar():
     def __init__(self, x, y):
         super(Cigar, self).__init__()
-        original_image = pygame.image.load("./assets/images/alcohol.png").convert_alpha()
+        original_image = pygame.image.load("./assets/images/cigar.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (35, 35))
         self.rect = self.image.get_rect(topleft=(x,y))
 
@@ -175,7 +175,7 @@ def play(screen):
 
     lemon = Lemon(2080, 2400)
     special_alcohol = Alcohol(1740, 2464)
-    alcohols = [special_alcohol, Alcohol(2400, 2528), Alcohol(2432, 2528), Alcohol(2464, 2528), Alcohol(2496, 2528), Alcohol(2528, 2528), Alcohol(2560, 2528)]
+    alcohols = [Alcohol(2400, 2528), Alcohol(2432, 2528), Alcohol(2464, 2528), Alcohol(2496, 2528), Alcohol(2528, 2528), Alcohol(2560, 2528), Alcohol(2720, 2016), Alcohol(3040, 2016), Alcohol(3840, 2016)]
 
     right = True    # face direction of player
 
@@ -339,8 +339,8 @@ def play(screen):
                 move_speed -= 8
             if pygame.sprite.collide_mask(player, special_alcohol):
                 player.update_health(-1)
-                alcohol.rect.x = 0
-                alcohol.rect.y = 0
+                special_alcohol.rect.x = 0
+                special_alcohol.rect.y = 0
                 move_speed += 8
             for alcohol in alcohols:
                 if pygame.sprite.collide_mask(player, alcohol):
@@ -422,6 +422,11 @@ def play(screen):
             lemon.rect.x -= screen_offset_x
             lemon.rect.y += screen_offset_y
             
+            special_alcohol.rect.x += screen_offset_x
+            special_alcohol.rect.y -= screen_offset_y
+            screen.blit(special_alcohol.image, special_alcohol.rect)
+            special_alcohol.rect.x -= screen_offset_x
+            special_alcohol.rect.y += screen_offset_y
             for alcohol in alcohols:
                 alcohol.rect.x += screen_offset_x
                 alcohol.rect.y -= screen_offset_y
