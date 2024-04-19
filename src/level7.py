@@ -56,7 +56,7 @@ class Key(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Key, self).__init__()
         original_image = pygame.image.load("assets/images/key.png").convert_alpha()
-        scaled_image = pygame.transform.scale(original_image, (40, 40))
+        scaled_image = pygame.transform.scale(original_image, (65, 65))
         rotated_image = pygame.transform.rotate(scaled_image, 90)
         self.image = rotated_image
         self.rect = self.image.get_rect(topleft=(x,y))
@@ -164,9 +164,11 @@ def play(screen):
     door = Door(5060, 2290)
 
     alcohol1 = Alcohol(2925, 2270)
-    alcohol2 = Alcohol(3840, 2370)
-    alcohol3 = Alcohol(3940, 2370)
-    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), alcohol1, Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, Alcohol(5540, 2270)]
+    alcohol2 = Alcohol(3820, 2370)
+    alcohol3 = Alcohol(3860, 2370)
+    alcohol4 = Alcohol(3900, 2370)
+    alcohol5 = Alcohol(3940, 2370)
+    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), alcohol1, Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, alcohol4, alcohol5, Alcohol(5540, 2270)]
     moving_alcohol = [alcohol2, alcohol3]
     move_alcohol = False
     naughty_alcohol = [alcohol1]
