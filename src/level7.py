@@ -98,6 +98,14 @@ class Alcohol():
         self.rect = self.image.get_rect(topleft=(x,y))
         self.mask = pygame.mask.from_surface(self.image)
 
+class Lemon():
+    def __init__(self, x, y):
+        super(Lemon, self).__init__()
+        original_image = pygame.image.load("assets/images/lemon.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (40, 40))
+        self.rect = self.image.get_rect(topleft=(x,y))
+        self.mask = pygame.mask.from_surface(self.image)
+
 class Cocaine():
     def __init__(self, x, y):
         super(Cocaine, self).__init__()
@@ -172,18 +180,24 @@ def play(screen):
     key = Key(3680, 2450)
     door = Door(5060, 2290)
 
-    alcohol1 = Alcohol(2925, 2270)
-    alcohol2 = Alcohol(3820, 2370)
-    alcohol3 = Alcohol(3860, 2370)
-    alcohol4 = Alcohol(3900, 2370)
-    alcohol5 = Alcohol(3940, 2370)
-    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), alcohol1, Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, alcohol4, alcohol5, Alcohol(5540, 2270)]
-    moving_alcohol = [alcohol2, alcohol3]
+    alcohol1 = Alcohol(2925, 2240)
+    alcohol2 = Alcohol(3820, 2320)
+    alcohol3 = Alcohol(3875, 2336)
+    alcohol4 = Alcohol(3930, 2352)
+    alcohol5 = Alcohol(3985, 2368)
+    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2783, 2358), Alcohol(2813, 2358), Alcohol(2850, 2390), Alcohol(2880, 2390), alcohol1, Alcohol(2970, 2390), Alcohol(3000, 2390), Alcohol(3040, 2358), Alcohol(3070, 2358), Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, alcohol4, alcohol5, Alcohol(4500, 2112), Alcohol(5540, 2270)]
+    moving_alcohol = [alcohol2, alcohol3, alcohol4, alcohol5]
+    moving_up = [False, False, False, False]
     move_alcohol = False
     naughty_alcohol = [alcohol1]
     alochol_naughty = False
+
+    lemon = Lemon(4736, 2112)
     
-    cherries = [Cherry(1795, 2520), Cherry(2925, 2400)]
+    cherries = [Cherry(1795, 2510), Cherry(2925, 2390)]
+    cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
+    cokes_shown = 0
+    cokes_accumulator = 0
 
     right = True    # face direction of player
 
@@ -351,11 +365,21 @@ def play(screen):
                     alcohol.rect.x = 0
                     alcohol.rect.y = 0
                     player.update_health(-1)
-            for i in range(2):
+            for i in range(4):
                 alcohol = moving_alcohol[i]
-                if key_collected:
-                    if move_alcohol and alcohol.rect.y < 2520:
-                        alcohol.rect.y += ((1-i) + 1)
+                if (alcohol.rect.y == 2320):
+                    moving_up[i] = False
+                if (alcohol.rect.y == 2520):
+                    moving_up[i] = True
+                if not moving_up[i]:
+                    alcohol.rect.y += 4
+                if moving_up[i]:
+                    alcohol.rect.y -= 4
+
+            if pygame.sprite.collide_mask(player, lemon):
+                lemon.rect.x = 0
+                lemon.rect.y = 0
+                alochol_naughty = not alochol_naughty
 
             if player.rect.y > 2800:
                 gameover = True
@@ -413,6 +437,12 @@ def play(screen):
                 screen.blit(alcohol.image, alcohol.rect)
                 alcohol.rect.x -= screen_offset_x
                 alcohol.rect.y += screen_offset_y
+
+            lemon.rect.x += screen_offset_x
+            lemon.rect.y -= screen_offset_y
+            screen.blit(lemon.image, lemon.rect)
+            lemon.rect.x -= screen_offset_x
+            lemon.rect.y += screen_offset_y            
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y

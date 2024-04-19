@@ -275,14 +275,6 @@ def play(screen):
                     if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
                         dx += 2
 
-            for block in moving_blocks:
-                if not running_block and player.rect.left > block.rect.right:
-                    running_block = True
-                if running_block and block.rect.x < 4000:
-                    block.rect.x += 2
-                    if (player.rect.left < block.rect.right and player.rect.right > block.rect.left) and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top):
-                        dx += 2
-
             for block in blocks:
                 if block.rect.colliderect(player.rect.x + dx, player.rect.y, player.width, player.height):
                     dx = 0
