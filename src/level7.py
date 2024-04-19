@@ -163,9 +163,11 @@ def play(screen):
     key = Key(3680, 2500)
     door = Door(5060, 2290)
 
-    # alcohols = [Alcohol()]
+    # alcohol1 = A
+    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2925, 2270), Alcohol(3360, 2200), Alcohol(3840, 2200), Alcohol(3840, 2370), Alcohol(3940, 2370), Alcohol(5540, 2270)]
+    moving_alcohol = []
     
-    cherries = [Cherry(3600, 2350), Cherry(3520, 1750)]
+    cherries = [Cherry(1795, 2520), Cherry(2925, 2400)]
     cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
     cokes_shown = 0
     cokes_accumulator = 0
@@ -301,52 +303,52 @@ def play(screen):
                     cherry.rect.y = 0
                     player.health += 1
             
-            # for alcohol in alcohols:
-            #     if pygame.sprite.collide_mask(player, alcohol):
-            #         alcohol.rect.x = 0
-            #         alcohol.rect.y = 0
-            #         player.health -= 1
+            for alcohol in alcohols:
+                if pygame.sprite.collide_mask(player, alcohol):
+                    alcohol.rect.x = 0
+                    alcohol.rect.y = 0
+                    player.health -= 1
             
-            if cokes_shown == 0:
-                if player.rect.x >= 1360 and player.rect.y <= 2600:
-                    cokes_shown = 1
-            elif cokes_shown == 1:
-                if cokes[0].rect.x < 3170:
-                    cokes_accumulator += 4.7
-                    cokes[0].rect.x += 9*(cokes_accumulator//9)
-                    cokes_accumulator = cokes_accumulator%9
-                else:
-                    cokes_accumulator = 0
-                if pygame.sprite.collide_mask(player, cokes[0]):
-                    gameover = True
-                if player.rect.x <= 2530 and player.rect.y <= 2300:
-                    cokes_shown = 2
-            elif cokes_shown == 2:
-                if cokes[1].rect.x > 1200:
-                    cokes[1].rect.x -= 5.6
-                if pygame.sprite.collide_mask(player, cokes[1]):
-                    gameover = True
-                if player.rect.x >= 1756 and player.rect.y <= 2100:
-                    cokes_shown = 3
-            elif cokes_shown == 3:
-                if cokes[2].rect.x < 3250:
-                    cokes[2].rect.x += 5.4
-                if pygame.sprite.collide_mask(player, cokes[2]):
-                    gameover = True
-                if player.rect.x <= 2600 and player.rect.y <= 1800:
-                    cokes_shown = 4
-            elif cokes_shown == 4:
-                if cokes[3].rect.x > 1200:
-                    cokes[3].rect.x -= 6
-                if pygame.sprite.collide_mask(player, cokes[3]):
-                    gameover = True
-                if player.rect.x >= 1900 and player.rect.y <= 1500:
-                    cokes_shown = 5
-            elif cokes_shown == 5:
-                if cokes[4].rect.x < 3000:
-                    cokes[4].rect.x += 5.5
-                if pygame.sprite.collide_mask(player, cokes[4]):
-                    gameover = True
+            # if cokes_shown == 0:
+            #     if player.rect.x >= 1360 and player.rect.y <= 2600:
+            #         cokes_shown = 1
+            # elif cokes_shown == 1:
+            #     if cokes[0].rect.x < 3170:
+            #         cokes_accumulator += 4.7
+            #         cokes[0].rect.x += 9*(cokes_accumulator//9)
+            #         cokes_accumulator = cokes_accumulator%9
+            #     else:
+            #         cokes_accumulator = 0
+            #     if pygame.sprite.collide_mask(player, cokes[0]):
+            #         gameover = True
+            #     if player.rect.x <= 2530 and player.rect.y <= 2300:
+            #         cokes_shown = 2
+            # elif cokes_shown == 2:
+            #     if cokes[1].rect.x > 1200:
+            #         cokes[1].rect.x -= 5.6
+            #     if pygame.sprite.collide_mask(player, cokes[1]):
+            #         gameover = True
+            #     if player.rect.x >= 1756 and player.rect.y <= 2100:
+            #         cokes_shown = 3
+            # elif cokes_shown == 3:
+            #     if cokes[2].rect.x < 3250:
+            #         cokes[2].rect.x += 5.4
+            #     if pygame.sprite.collide_mask(player, cokes[2]):
+            #         gameover = True
+            #     if player.rect.x <= 2600 and player.rect.y <= 1800:
+            #         cokes_shown = 4
+            # elif cokes_shown == 4:
+            #     if cokes[3].rect.x > 1200:
+            #         cokes[3].rect.x -= 6
+            #     if pygame.sprite.collide_mask(player, cokes[3]):
+            #         gameover = True
+            #     if player.rect.x >= 1900 and player.rect.y <= 1500:
+            #         cokes_shown = 5
+            # elif cokes_shown == 5:
+            #     if cokes[4].rect.x < 3000:
+            #         cokes[4].rect.x += 5.5
+            #     if pygame.sprite.collide_mask(player, cokes[4]):
+            #         gameover = True
 
             if player.rect.y > 2800:
                 gameover = True
@@ -394,19 +396,19 @@ def play(screen):
                 cherry.rect.x -= screen_offset_x
                 cherry.rect.y += screen_offset_y
 
-            # for alcohol in alcohols:
-            #     alcohol.rect.x += screen_offset_x
-            #     alcohol.rect.y -= screen_offset_y
-            #     screen.blit(alcohol.image, alcohol.rect)
-            #     alcohol.rect.x -= screen_offset_x
-            #     alcohol.rect.y += screen_offset_y
+            for alcohol in alcohols:
+                alcohol.rect.x += screen_offset_x
+                alcohol.rect.y -= screen_offset_y
+                screen.blit(alcohol.image, alcohol.rect)
+                alcohol.rect.x -= screen_offset_x
+                alcohol.rect.y += screen_offset_y
 
-            for i in range(cokes_shown):
-                cokes[i].rect.x += screen_offset_x
-                cokes[i].rect.y -= screen_offset_y
-                screen.blit(cokes[i].image, cokes[i].rect)
-                cokes[i].rect.x -= screen_offset_x
-                cokes[i].rect.y += screen_offset_y
+            # for i in range(cokes_shown):
+            #     cokes[i].rect.x += screen_offset_x
+            #     cokes[i].rect.y -= screen_offset_y
+            #     screen.blit(cokes[i].image, cokes[i].rect)
+            #     cokes[i].rect.x -= screen_offset_x
+            #     cokes[i].rect.y += screen_offset_y
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
