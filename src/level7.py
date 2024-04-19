@@ -163,10 +163,14 @@ def play(screen):
     key = Key(3680, 2500)
     door = Door(5060, 2290)
 
-    alcohol1 = Alcohol(3840, 2370)
-    alcohol2 = Alcohol(3940, 2370)
-    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), Alcohol(2925, 2270), Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol1, alcohol2, Alcohol(5540, 2270)]
-    moving_alcohol = []
+    alcohol1 = Alcohol(2925, 2270)
+    alcohol2 = Alcohol(3840, 2370)
+    alcohol3 = Alcohol(3940, 2370)
+    alcohols = [Alcohol(1670, 2520), Alcohol(1900, 2520), Alcohol(2590, 2200), alcohol1, Alcohol(3360, 2200), Alcohol(3840, 2200), alcohol2, alcohol3, Alcohol(5540, 2270)]
+    moving_alcohol = [alcohol2, alcohol3]
+    move_alcohol = False
+    naughty_alcohol = [alcohol1]
+    alochol_naughty = False
     
     cherries = [Cherry(1795, 2520), Cherry(2925, 2400)]
     cokes = [Cocaine(820, 2450), Cocaine(3180, 2220), Cocaine(1210, 1970), Cocaine(3280, 1720), Cocaine(1190, 1490)]
@@ -231,12 +235,18 @@ def play(screen):
             if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and not jumping:
                 jump_speed = og_jump_speed
                 jumping = True
-            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            if (keys[pygame.K_LEFT] or keys[pygame.K_a]) and (not alochol_naughty):
                 dx -= move_speed
                 right = False
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            elif (keys[pygame.K_LEFT] or keys[pygame.K_a]) and (alochol_naughty):
                 dx += move_speed
                 right = True
+            if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and (not alochol_naughty):
+                dx += move_speed
+                right = True
+            elif (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and (alochol_naughty):
+                dx -= move_speed
+                right = False
             
             all_sprites.update()
 
@@ -272,10 +282,14 @@ def play(screen):
                             player.action = "idle_right"
                         else:
                             player.action = "idle_left"
-                    elif keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
+                    elif (keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]) and (not alochol_naughty):
                         player.action = "run_left"
-                    elif keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
+                    elif (keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]) and (not alochol_naughty):
                         player.action = "run_right"
+                    elif (keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]) and (alochol_naughty):
+                        player.action = "run_right"
+                    elif (keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]) and (alochol_naughty):
+                        player.action = "run_left"
                 else:
                     if right:
                         player.action = "jump_right"
@@ -297,59 +311,29 @@ def play(screen):
 
             if player.rect.colliderect(key.rect):
                 key_collected = True
+                move_alcohol = True
 
             for cherry in cherries:
                 if pygame.sprite.collide_mask(player, cherry):
                     cherry.rect.x = 0
                     cherry.rect.y = 0
                     player.health += 1
-            
+
+            for alcohol in naughty_alcohol:
+                if pygame.sprite.collide_mask(player, alcohol):
+                    alcohol.rect.x = 0
+                    alcohol.rect.y = 0
+                    alochol_naughty = not alochol_naughty
             for alcohol in alcohols:
                 if pygame.sprite.collide_mask(player, alcohol):
                     alcohol.rect.x = 0
                     alcohol.rect.y = 0
                     player.health -= 1
-            
-            # if cokes_shown == 0:
-            #     if player.rect.x >= 1360 and player.rect.y <= 2600:
-            #         cokes_shown = 1
-            # elif cokes_shown == 1:
-            #     if cokes[0].rect.x < 3170:
-            #         cokes_accumulator += 4.7
-            #         cokes[0].rect.x += 9*(cokes_accumulator//9)
-            #         cokes_accumulator = cokes_accumulator%9
-            #     else:
-            #         cokes_accumulator = 0
-            #     if pygame.sprite.collide_mask(player, cokes[0]):
-            #         gameover = True
-            #     if player.rect.x <= 2530 and player.rect.y <= 2300:
-            #         cokes_shown = 2
-            # elif cokes_shown == 2:
-            #     if cokes[1].rect.x > 1200:
-            #         cokes[1].rect.x -= 5.6
-            #     if pygame.sprite.collide_mask(player, cokes[1]):
-            #         gameover = True
-            #     if player.rect.x >= 1756 and player.rect.y <= 2100:
-            #         cokes_shown = 3
-            # elif cokes_shown == 3:
-            #     if cokes[2].rect.x < 3250:
-            #         cokes[2].rect.x += 5.4
-            #     if pygame.sprite.collide_mask(player, cokes[2]):
-            #         gameover = True
-            #     if player.rect.x <= 2600 and player.rect.y <= 1800:
-            #         cokes_shown = 4
-            # elif cokes_shown == 4:
-            #     if cokes[3].rect.x > 1200:
-            #         cokes[3].rect.x -= 6
-            #     if pygame.sprite.collide_mask(player, cokes[3]):
-            #         gameover = True
-            #     if player.rect.x >= 1900 and player.rect.y <= 1500:
-            #         cokes_shown = 5
-            # elif cokes_shown == 5:
-            #     if cokes[4].rect.x < 3000:
-            #         cokes[4].rect.x += 5.5
-            #     if pygame.sprite.collide_mask(player, cokes[4]):
-            #         gameover = True
+            for i in range(2):
+                alcohol = moving_alcohol[i]
+                if key_collected:
+                    if move_alcohol and alcohol.rect.y < 2520:
+                        alcohol.rect.y += ((1-i) + 1)
 
             if player.rect.y > 2800:
                 gameover = True
@@ -381,7 +365,7 @@ def play(screen):
                         player.alpha -= 5
                         player.image.set_alpha(player.alpha)
                     else:
-                        return 1
+                        return -1
 
 
             door.rect.x += screen_offset_x
