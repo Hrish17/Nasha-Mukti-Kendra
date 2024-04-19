@@ -174,7 +174,8 @@ def play(screen):
     door = Door(4160, 2005)
 
     lemon = Lemon(2080, 2400)
-    alcohol = Alcohol(1740, 2464)
+    special_alcohol = Alcohol(1740, 2464)
+    alcohols = [special_alcohol, Alcohol(2400, 2528), Alcohol(2432, 2528), Alcohol(2464, 2528), Alcohol(2496, 2528), Alcohol(2528, 2528), Alcohol(2560, 2528)]
 
     right = True    # face direction of player
 
@@ -336,11 +337,16 @@ def play(screen):
                 lemon.rect.x = 0
                 lemon.rect.y = 0
                 move_speed -= 8
-            if pygame.sprite.collide_mask(player, alcohol):
+            if pygame.sprite.collide_mask(player, special_alcohol):
                 player.update_health(-1)
                 alcohol.rect.x = 0
                 alcohol.rect.y = 0
                 move_speed += 8
+            for alcohol in alcohols:
+                if pygame.sprite.collide_mask(player, alcohol):
+                    player.update_health(-1)
+                    alcohol.rect.x = 0
+                    alcohol.rect.y = 0
 
             for block in moving_blocks_v:
                 if not running_block_v and block.rect.y > 2000 and (player.rect.bottom >= block.rect.top and player.rect.top < block.rect.top) and (player.rect.left > 2464 and player.rect.right < 2600):
@@ -415,12 +421,13 @@ def play(screen):
             screen.blit(lemon.image, lemon.rect)
             lemon.rect.x -= screen_offset_x
             lemon.rect.y += screen_offset_y
-
-            alcohol.rect.x += screen_offset_x
-            alcohol.rect.y -= screen_offset_y
-            screen.blit(alcohol.image, alcohol.rect)
-            alcohol.rect.x -= screen_offset_x
-            alcohol.rect.y += screen_offset_y
+            
+            for alcohol in alcohols:
+                alcohol.rect.x += screen_offset_x
+                alcohol.rect.y -= screen_offset_y
+                screen.blit(alcohol.image, alcohol.rect)
+                alcohol.rect.x -= screen_offset_x
+                alcohol.rect.y += screen_offset_y
 
             player.rect.x += screen_offset_x
             player.rect.y -= screen_offset_y
