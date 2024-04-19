@@ -90,6 +90,14 @@ class Water():
         self.rect = self.image.get_rect(topleft=(x,y))
         self.mask = pygame.mask.from_surface(self.image)
 
+class Cherry(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super(Cherry, self).__init__()
+        original_image = pygame.image.load("./assets/images/cherries.png").convert_alpha()
+        self.image = pygame.transform.scale(original_image, (50, 50))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.mask = pygame.mask.from_surface(self.image)
+
 class Button:
     def __init__(self, x, y, width, height, color, text, font, text_color, hover_color, action=None):
         self.rect = pygame.Rect(x, y, width, height)
@@ -128,8 +136,8 @@ def play(screen):
 
     screen_number = 1
     level4 = Text(screen.get_width()/2, 100, 'LEVEL 4', pygame.font.Font(None, 80), (255, 255, 255))
-    text1 = Text(screen.get_width()/2, 200, 'Collect the key and reach the door to proceed to the next level', pygame.font.Font(None, 50), (255, 255, 255))
-    text2 = Text(screen.get_width()/2, 300, 'There is The path to recovery from addiction may be difficult, but it is possible with determination and support', pygame.font.Font(None, 50), (255, 0, 0))
+    text1 = Text(screen.get_width()/2, 275, 'Recovery from addiction is tough but achievable', pygame.font.Font(None, 50), (255, 0, 0))
+    text2 = Text(screen.get_width()/2, 325, 'with determination and support', pygame.font.Font(None, 50), (255, 0, 0))
     begin_button = Button(screen.get_width()/2 - 75, 420, 150, 50, (70, 70, 70), 'BEGIN', pygame.font.Font(None, 36), (255, 255, 255), (100, 100, 100))
 
     # screen number = 2
@@ -171,10 +179,13 @@ def play(screen):
     alcohols = [alcohol1, alcohol2, alcohol3, alcohol4, alcohol5, alcohol6]
     moving_alcohol = [alcohol3]
     moving_alcohol2 = [alcohol6]
+
     water1 = Water(2550, 1860)
     water2 = Water(2650, 1860)
     moving_water = [water1]
     waters = [water1, water2]
+
+    cherry1 = Cherry(2112, 1940)
 
     right = True    # face direction of player
 
@@ -361,6 +372,11 @@ def play(screen):
                 if (water.rect.x - player.rect.x) < 50:
                     if water.rect.y < 1940:
                         water.rect.y += 16
+            if pygame.sprite.collide_mask(player, cherry1):
+                cherry1.rect.x = 0
+                cherry1.rect.y = 0
+                player.update_health(1)
+                move_speed += 0.1
 
             if player.rect.y > 2800:
                 gameover = True

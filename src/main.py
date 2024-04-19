@@ -85,7 +85,7 @@ def start_level(screen, level_number, total_levels=7):
     return level_number
 
 def main():
-    levels_unlocked = 1
+    levels_unlocked = 7
     total_levels = 7
     pygame.init()
     pygame.mixer.init()
@@ -206,6 +206,7 @@ def main():
                                 if level_button.is_clicked(event.pos):
                                     l_number = start_level(screen, i)
                                     if l_number > total_levels:
+                                        levels_unlocked = total_levels
                                         screen_number = 4
                                         continue
                                     if l_number > levels_unlocked:
